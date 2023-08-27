@@ -34,7 +34,8 @@ class RabbitMQConnectionManager:
 
     def get_connection(self, name = 'default'):
         connection_instance: RabbitMQConnection = self._connections.get(name)
-        return connection_instance.get_connection()
+
+        return connection_instance
 
 
 def rabbitmq_manager():

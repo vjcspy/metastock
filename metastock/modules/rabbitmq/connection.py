@@ -1,5 +1,7 @@
 import pika
 
+from metastock.modules.core.logging.logger import Logger
+
 
 class RabbitMQConnection:
     def __init__(self, host = 'localhost', port = 5672, username = 'guest', password = 'guest'):
@@ -14,7 +16,25 @@ class RabbitMQConnection:
         parameters = pika.ConnectionParameters(host = self.host, port = self.port, credentials = credentials)
         self.connection = pika.BlockingConnection(parameters)
 
-    def get_connection(self):
+        # Log connection successful
+        Logger().info("Connected to RabbitMQ!")
+
+        # Register a callback to handle disconnection events
+        self.connection.add_on_connection_blocked_callback(self._on_connection_blocked)
+        self.connection.add_on_connection_unblocked_callback(self._on_connection_unblocked)
+
+    def _on_connection_blocked(self, _unused_frame):
+        Logger().info("Connection blocked!")
+
+    def _on_connection_unblocked(self, _unused_frame):
+        Logger().info("Connection unblocked!")
+
+    def _on_connection_closed(self, _unused_connection, reason):
+        Logger().info(f"Connection closed: {reason}")
+        # Try reconnecting
+        self.connect()
+
+    def get_rabbit_connection(self):
         if not self.connection or self.connection.is_closed:
             self.connect()
         return self.connection
