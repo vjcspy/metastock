@@ -1,0 +1,25 @@
+{
+  "api": "@predefined_input/strategy/v1",
+  "name": "simple_sqz_mom_strategy_input_v1",
+  "input": {
+    "range": {
+      "type": "relative",
+      "from": {
+        "modify": "shift",
+        "amount": "2",
+        "amount_type": "years"
+      },
+      "to": {
+      }
+    },
+    "filter": {
+    },
+    "signal": {},
+    "action": {
+      "buy": {
+      },
+      "sell": {
+      }
+    }
+  }
+}
