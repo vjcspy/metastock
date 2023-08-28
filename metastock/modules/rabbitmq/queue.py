@@ -1,3 +1,6 @@
+from metastock.modules.core.logging.logger import Logger
+
+
 class RabbitMQQueue:
     def __init__(self, connection):
         self.connection = connection
@@ -5,7 +8,7 @@ class RabbitMQQueue:
 
     def _declare_queue(self, queue: str):
         result = self.channel.queue_declare(queue = queue, durable = True, exclusive = False)
-        print(f"Queue '{result.method.queue}' declared.")
+        Logger().info(f"Queue '{result.method.queue}' declared.")
 
         return result.method.queue
 
@@ -14,7 +17,7 @@ class RabbitMQQueue:
 
     def delete_queue(self, queue_name):
         self.channel.queue_delete(queue = queue_name)
-        print(f"Queue '{queue_name}' deleted.")
+        Logger().info(f"Queue '{queue_name}' deleted.")
 
     def bind_queue(self, exchange: str, queue: str, routing_key: str):
         # make sure exchange existed
