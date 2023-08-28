@@ -6,7 +6,9 @@ from metastock.modules.core.logging.logger import Logger
 class HttpClient:
     instance = None
 
-    def get(self, url, config):
+    def get(self, url, config = None):
+        if config is None:
+            config = {}
         response = requests.get(url)
 
         return response

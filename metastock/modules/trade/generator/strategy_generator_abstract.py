@@ -2,11 +2,8 @@ from abc import abstractmethod
 
 import arrow
 
-from metastock.modules.trade.strategy import StrategyManager
-
 
 class StrategyGeneratorAbstract:
-    strategy_manager: StrategyManager = StrategyManager()
 
     @abstractmethod
     def generate(self):

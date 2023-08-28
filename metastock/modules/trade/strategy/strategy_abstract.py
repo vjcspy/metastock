@@ -1,79 +1,13 @@
 from abc import abstractmethod, ABC
 from typing import Self
 
-import arrow
-
-SCHEMA_INPUT_V1 = {
-        "type": "object",
-        "properties": {
-                "api": {
-                        "type": "string",
-                        "pattern": "^@predefined_input/strategy/v.*$",
-                        "description": "API endpoint"
-                },
-                "name": {
-                        "type": "string",
-                        "description": "Strategy Input name"
-                },
-                "input": {
-                        "type": "object",
-                        "properties": {
-                                "range": {
-                                        "type": "object",
-                                        "properties": {
-                                                "type": {
-                                                        "type": "string",
-                                                        "enum": ["relative", "absolute"]
-                                                },
-                                                "from": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                                "modify": {
-                                                                        "type": "string",
-                                                                        "enum": ["shift"]
-                                                                },
-                                                                "amount": {
-                                                                        "type": "number"
-                                                                },
-                                                                "amount_type": {
-                                                                        "type": "string",
-                                                                        "enum": ["years"]
-                                                                }
-                                                        },
-                                                        "required": ["modify", "amount", "amount_type"]
-                                                },
-                                                "to": {
-                                                        "type": "object"
-                                                }
-                                        },
-                                        "required": ["type", "from"]
-                                },
-                                "filter": {
-                                        "type": "object"
-                                },
-                                "signal": {
-                                        "type": "object"
-                                },
-                                "action": {
-                                        "type": "object",
-                                        "properties": {
-                                                "buy": {
-                                                        "type": "object"
-                                                },
-                                                "sell": {
-                                                        "type": "object"
-                                                }
-                                        }
-                                }
-                        },
-                        "required": ["range", "filter", "signal", "action"]
-                }
-        },
-        "required": ["api", "name", "input"]
-}
-
 
 class StrategyAbstract(ABC):
+    name = None
+
+    def get_name(self):
+        return self.name
+
     @abstractmethod
     def get_input_description(self):
         """
@@ -91,5 +25,8 @@ class StrategyAbstract(ABC):
         pass
 
     @abstractmethod
-    def load_input(self, input_config: dict):
+    def load_input(self, input_config: dict, from_date: str = None, to_date: str = None):
+        """
+        from_date and to_date may be passed because they are resolved before send to API server in case relative date
+        """
         pass

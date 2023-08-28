@@ -2,11 +2,12 @@ from metastock.modules.trade.strategy.signals.signal_abstract import SignalAbstr
 
 
 class SimpleSqzMomSignal(SignalAbstract):
+    name = 'simple_sqz_mom_signal'
 
     def support_output_versions(self) -> list[str]:
         return ['@signal_output/v1']
 
-    def get_output(self, version='@signal_output/v1') -> SignalOutputV1:
+    def get_output(self, version = '@signal_output/v1') -> SignalOutputV1:
         match version:
             case '@signal_output/v1':
                 pass

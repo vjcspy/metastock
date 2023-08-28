@@ -28,4 +28,4 @@ for key, value in os.environ.items():
         table.add_row(key, value)
 
 console = Console()
-console.print(table)
+console.print(table, justify = "center")

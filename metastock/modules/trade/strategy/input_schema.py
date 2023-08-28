@@ -1,0 +1,77 @@
+from metastock.modules.trade.strategy.actions.input_schema import ACTION_INPUT_SCHEMA_V1
+from metastock.modules.trade.strategy.signals.input_schema import SIGNAL_INPUT_SCHEMA_V1
+
+STRATEGY_INPUT_SCHEMA_V1 = {
+        "type": "object",
+        "properties": {
+                "api": {
+                        "type": "string",
+                        "pattern": "^@predefined_input/strategy/v.*$",
+                        "description": "API endpoint"
+                },
+                "name": {
+                        "type": "string",
+                        "description": "Strategy Input name"
+                },
+                "input": {
+                        "type": "object",
+                        "properties": {
+                                "range": {
+                                        "type": "object",
+                                        "properties": {
+                                                "type": {
+                                                        "type": "string",
+                                                        "enum": ["relative", "absolute"]
+                                                },
+                                                "from": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                                "modify": {
+                                                                        "type": "string",
+                                                                        "enum": ["shift"]
+                                                                },
+                                                                "amount": {
+                                                                        "type": ["string", "number"]
+                                                                },
+                                                                "amount_type": {
+                                                                        "type": "string",
+                                                                        "enum": ["years"]
+                                                                }
+                                                        },
+                                                        "required": ["modify", "amount", "amount_type"]
+                                                },
+                                                "to": {
+                                                        "type": "object"
+                                                }
+                                        },
+                                        "required": ["type", "from"]
+                                },
+                                "filter": {
+                                        "type": "object"
+                                },
+                                "signal": {
+                                        "type": "object",
+                                        "properties": {
+                                                "signals": {
+                                                        "type": "array",
+                                                        "items": {"type": "string"}
+                                                },
+                                                "input": SIGNAL_INPUT_SCHEMA_V1
+                                        }
+                                },
+                                "action": {
+                                        "type": "object",
+                                        "properties": {
+                                                "actions": {
+                                                        "type": "array",
+                                                        "items": {"type": "string"}
+                                                },
+                                                "input": ACTION_INPUT_SCHEMA_V1
+                                        }
+                                }
+                        },
+                        "required": ["range", "filter", "signal", "action"]
+                }
+        },
+        "required": ["api", "name", "input"]
+}

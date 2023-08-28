@@ -1,5 +1,3 @@
-from metastock.modules.trade.strategy.strategy_manager import StrategyManager
+from metastock.modules.trade.strategy.strategy_manager import strategy_manager
 
-strategy_manager = StrategyManager()
-
-print(strategy_manager.get_strategy_map())
+print(strategy_manager().get_class_map())

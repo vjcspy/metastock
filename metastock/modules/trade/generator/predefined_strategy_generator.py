@@ -1,44 +1,18 @@
 from typing import Any
 
 from metastock.modules.core.logging.logger import Logger
-from metastock.modules.core.util.environment import env
 from metastock.modules.core.util.http_client import http_client
 from metastock.modules.trade.error import TradeFileNotFoundError, StrategyNotFound
+from metastock.modules.trade.generator.input_schema import PRE_DEFINED_INPUT_SCHEMA_V1
 from metastock.modules.trade.generator.strategy_generator_abstract import StrategyGeneratorAbstract
 import simplejson as json
 import os
 import jsonschema
 
+from metastock.modules.trade.strategy import strategy_manager
 from metastock.modules.trade.strategy.strategy_abstract import StrategyAbstract
 from metastock.modules.trade.util.get_strategy_hash import get_strategy_hash
 from metastock.modules.trade.value.url import TradeUrlValue
-
-PRE_DEFINED_INPUT_SCHEMA_V1 = {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "type": "object",
-        "properties": {
-                "api": {"type": "string"},
-                "strategy": {
-                        "type": "object",
-                        "properties": {
-                                "name": {"type": "string"},
-                                "input": {
-                                        "type": "object",
-                                        "properties": {
-                                                "type": {"type": "string"},
-                                                "data": {
-                                                        "type": "array",
-                                                        "items": {"type": "string"}
-                                                }
-                                        },
-                                        "required": ["type", "data"]
-                                }
-                        },
-                        "required": ["name", "input"]
-                }
-        },
-        "required": ["strategy"]
-}
 
 
 class PredefinedStrategyGenerator(StrategyGeneratorAbstract):
@@ -77,10 +51,10 @@ class PredefinedStrategyGenerator(StrategyGeneratorAbstract):
     def _load_input_strategy_v1(self, strategy_config):
         # check if there is a strategy with that name
         self.strategy_name = strategy_config['name']
-        if self.strategy_manager.get_strategy_map().get(self.strategy_name) is not None:
+        if strategy_manager().get_class_map().get(self.strategy_name) is not None:
             try:
                 self.strategy: StrategyAbstract = \
-                    self.strategy_manager.get_strategy_map().get(strategy_config['name'])['class']()
+                    strategy_manager().get_class_map().get(strategy_config['name'])['class']()
             except Exception:
                 pass
 
@@ -124,7 +98,7 @@ class PredefinedStrategyGenerator(StrategyGeneratorAbstract):
             from_date, to_date = self._get_range_data(strategy_input["range"])
             hash_key = get_strategy_hash(
                     strategy_name = self.strategy_name,
-                    strategy_input = strategy_input,
+                    strategy_input = config['data'],
                     from_date = from_date,
                     to_date = to_date
             )
@@ -132,11 +106,11 @@ class PredefinedStrategyGenerator(StrategyGeneratorAbstract):
                     "strategy_name": self.strategy_name,
                     "from_date": from_date,
                     "to_date": to_date,
-                    "strategy_input": strategy_input,
+                    "strategy_input": config['data'],
                     "hash_key": hash_key
             }
 
-            print(data)
+            self.logger.info(f"Will send to API server to process strategy with data {data}")
 
             res = client.post(url, data)
 

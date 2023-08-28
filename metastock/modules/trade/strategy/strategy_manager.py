@@ -1,12 +1,14 @@
 from typing import Any
 
+from metastock.modules.trade.strategy.abstract_manager import AbstractManager
 
-class StrategyManager:
-    _strategy_map = {}
 
-    @staticmethod
-    def define_strategy(key: str, spec: Any):
-        StrategyManager._strategy_map[key] = spec
+class StrategyManager(AbstractManager):
+    INSTANCE = None
 
-    def get_strategy_map(self) -> dict:
-        return self._strategy_map
+
+def strategy_manager() -> StrategyManager:
+    if StrategyManager.INSTANCE is None:
+        StrategyManager.INSTANCE = StrategyManager()
+
+    return StrategyManager.INSTANCE

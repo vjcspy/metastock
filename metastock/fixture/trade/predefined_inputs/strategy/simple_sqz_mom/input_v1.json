@@ -9,16 +9,28 @@
         "amount": "2",
         "amount_type": "years"
       },
-      "to": {
+      "to": {}
+    },
+    "filter": {},
+    "signal": {
+      "signals": [
+        "simple_sqz_mom_signal"
+      ],
+      "input": {
+        "api": "@signal/input/v1",
+        "input": {}
       }
     },
-    "filter": {
-    },
-    "signal": {},
     "action": {
-      "buy": {
-      },
-      "sell": {
+      "actions": [
+        "simple_action_v1"
+      ],
+      "input": {
+        "api": "@action/input/v1",
+        "input": {
+          "buy": {},
+          "sell": {}
+        }
       }
     }
   }
