@@ -11,6 +11,16 @@ class StrategyNotFound(AppError):
         super().__init__(message, code)
 
 
+class StrategySignalNotFound(AppError):
+    def __init__(self, message = 'Please check your signal class name config', code = 'trade_general_error_000'):
+        super().__init__(message, code)
+
+
+class StrategyActionNotFound(AppError):
+    def __init__(self, message = 'Please check your action class name config', code = 'trade_general_error_000'):
+        super().__init__(message, code)
+
+
 class NotSupportConfigType(AppError):
     def __init__(self, message = 'Please check your config', code = 'trade_general_error_000'):
         super().__init__(message, code)

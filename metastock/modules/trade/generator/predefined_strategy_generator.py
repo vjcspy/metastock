@@ -2,7 +2,12 @@ from typing import Any
 
 from metastock.modules.core.logging.logger import Logger
 from metastock.modules.core.util.http_client import http_client
-from metastock.modules.trade.error import TradeFileNotFoundError, StrategyNotFound
+from metastock.modules.trade.error import (
+    StrategyActionNotFound,
+    StrategySignalNotFound,
+    TradeFileNotFoundError,
+    StrategyNotFound,
+)
 from metastock.modules.trade.generator.input_schema import PRE_DEFINED_INPUT_SCHEMA_V1
 from metastock.modules.trade.generator.strategy_generator_abstract import StrategyGeneratorAbstract
 import simplejson as json
@@ -10,6 +15,10 @@ import os
 import jsonschema
 
 from metastock.modules.trade.strategy import strategy_manager
+from metastock.modules.trade.strategy.actions import action_manager
+from metastock.modules.trade.strategy.actions.action_abstract import ActionAbstract
+from metastock.modules.trade.strategy.signals import signal_manager
+from metastock.modules.trade.strategy.signals.signal_abstract import SignalAbstract
 from metastock.modules.trade.strategy.strategy_abstract import StrategyAbstract
 from metastock.modules.trade.util.get_strategy_hash import get_strategy_hash
 from metastock.modules.trade.value.url import TradeUrlValue
@@ -81,8 +90,38 @@ class PredefinedStrategyGenerator(StrategyGeneratorAbstract):
                 _input_configs.append({"file": _file, "data": data})
 
         # Simulate load input for validation, we want all inputs is valid before send it to api server to create job
+        self.logger.debug("Will simulate load strategy and it's signal and action for validate input")
         for _input_config in _input_configs:
             self.strategy.load_input(input_config = _input_config["data"])
+            self.logger.debug(f"OK validate input for strategy [blue]{_input_config['data']['name']}[/blue]")
+
+            # Simulate load signal to verify input
+            signal_input = _input_config["data"]["input"]["signal"]
+            signals = signal_input['signals']
+            self.logger.debug("Will simulate load signals")
+            for signal_class_name in signals:
+                signal_class = signal_manager().get_class(signal_class_name)
+
+                if signal_class is None:
+                    raise StrategySignalNotFound()
+
+                signal: SignalAbstract = signal_class()
+                signal.load_input(signal_input['input'])
+                self.logger.debug(f"OK validate input for signal [blue]{signal_class_name}[/blue]")
+
+            # Simulate load action to verify input
+            action_input = _input_config["data"]["input"]["action"]
+            actions = action_input['actions']
+            self.logger.debug("Will simulate load actions")
+            for action_class_name in actions:
+                action_class = action_manager().get_class(action_class_name)
+
+                if action_class is None:
+                    raise StrategyActionNotFound()
+
+                action: ActionAbstract = action_class()
+                action.load_input(action_input['input'])
+                self.logger.debug(f"OK validate input for action [blue]{action_class_name}[/blue]")
 
         return _input_configs
 
@@ -119,7 +158,7 @@ class PredefinedStrategyGenerator(StrategyGeneratorAbstract):
 
             if res.status_code == 409:
                 self.logger.warning(
-                        f"Already generated for strategy '{self.strategy_name}' and input name '{config['data']['name']}'"
+                        f"[yellow]DUPLICATED[/yellow] Already generated for strategy '{self.strategy_name}' and input name '{config['data']['name']}'"
                 )
             elif res.status_code == 201:
                 self.logger.info(
