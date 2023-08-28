@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from rich.console import Console
 from rich.table import Table
 
+from metastock.modules.core.logging.logger import Logger
+
 # Xác định môi trường hiện tại ("development" hoặc "production")
 current_env = os.environ.get('ENVIRONMENT')
 

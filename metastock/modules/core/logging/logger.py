@@ -2,8 +2,9 @@ import logging
 
 from rich.logging import RichHandler
 
-from metastock.modules.core.logging.custom_formatter import CustomFormatter
-from metastock.modules.core.util.environment import env, is_development
+from metastock.modules.core.logging.formatter import RichFormatter
+from metastock.modules.core.util.environment import is_development
+from rich import console
 
 _log_instances = {}
 
@@ -24,8 +25,12 @@ def Logger(name: str = "root") -> logging.Logger:
         # _logger.addHandler(ch)
 
         # Tạo một RichHandler để định dạng thông báo log
-        handler = RichHandler(rich_tracebacks = True if is_development() else False)
-        handler.setFormatter(CustomFormatter())
+        handler = RichHandler(
+                rich_tracebacks = True if is_development() else False,
+                markup = True,
+                # console = console.Console(highlight = True)
+        )
+        handler.setFormatter(RichFormatter())
         _logger.addHandler(handler)
 
         _log_instances[name] = _logger

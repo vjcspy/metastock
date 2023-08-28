@@ -52,6 +52,6 @@ class RabbitMQConsumer(ABC):
         channel.basic_qos(prefetch_count = 1)
 
         Logger().info(
-                f' [*] Waiting for queue {colored(queue, "blue")} routing key {colored(routing_key, "blue")}. To exit press CTRL+C'
+                f' [*] Waiting for queue [bold blue]{queue}[/bold blue] routing key [bold blue]{routing_key}[/bold blue]. To exit press CTRL+C'
         )
         channel.start_consuming()
