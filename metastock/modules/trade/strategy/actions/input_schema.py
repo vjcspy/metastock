@@ -1,3 +1,5 @@
+ACTION_INPUT_SCHEMA_V1_NAME = '@action/input/v1'
+
 ACTION_INPUT_SCHEMA_V1 = {
         "type": "object",
         "properties": {

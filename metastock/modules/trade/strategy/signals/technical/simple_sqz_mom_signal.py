@@ -1,3 +1,5 @@
+from metastock.modules.trade.error import NotSupportConfigType
+from metastock.modules.trade.strategy.signals.output_schema import SIGNAL_OUTPUT_SCHEMA_V1_NAME
 from metastock.modules.trade.strategy.signals.signal_abstract import SignalAbstract, SignalOutputV1
 
 
@@ -5,14 +7,13 @@ class SimpleSqzMomSignal(SignalAbstract):
     name = 'simple_sqz_mom_signal'
 
     def support_output_versions(self) -> list[str]:
-        return ['@signal_output/v1']
+        return [SIGNAL_OUTPUT_SCHEMA_V1_NAME]
 
-    def get_output(self, version = '@signal_output/v1') -> SignalOutputV1:
-        match version:
-            case '@signal_output/v1':
-                pass
-            case default:
-                return self._get_output_v1()
+    def get_output(self, version = '@signal/output/v1') -> SignalOutputV1:
+        if version == SIGNAL_OUTPUT_SCHEMA_V1_NAME:
+            return self._get_output_v1()
+
+        raise NotSupportConfigType(f"Not support get output for version {version}")
 
     def _get_output_v1(self) -> SignalOutputV1:
         return SignalOutputV1()

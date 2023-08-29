@@ -1,9 +1,10 @@
 from typing import Any
 
 from metastock.modules.core.logging.logger import Logger
+from metastock.modules.core.util.find_common_elements import find_common_elements
 from metastock.modules.core.util.http_client import http_client
 from metastock.modules.trade.error import (
-    StrategyActionNotFound,
+    ActionAndSignalNotMatch, StrategyActionNotFound,
     StrategySignalNotFound,
     TradeFileNotFoundError,
     StrategyNotFound,
@@ -99,6 +100,7 @@ class PredefinedStrategyGenerator(StrategyGeneratorAbstract):
             signal_input = _input_config["data"]["input"]["signal"]
             signals = signal_input['signals']
             self.logger.debug("Will simulate load signals")
+            signal_instances = []
             for signal_class_name in signals:
                 signal_class = signal_manager().get_class(signal_class_name)
 
@@ -108,6 +110,7 @@ class PredefinedStrategyGenerator(StrategyGeneratorAbstract):
                 signal: SignalAbstract = signal_class()
                 signal.load_input(signal_input['input'])
                 self.logger.debug(f"OK validate input for signal [blue]{signal_class_name}[/blue]")
+                signal_instances.append(signal)
 
             # Simulate load action to verify input
             action_input = _input_config["data"]["input"]["action"]
@@ -123,16 +126,29 @@ class PredefinedStrategyGenerator(StrategyGeneratorAbstract):
                 action.load_input(action_input['input'])
                 self.logger.debug(f"OK validate input for action [blue]{action_class_name}[/blue]")
 
+                # verify each action can understand output schema
+                for signal in signal_instances:
+                    signal_outputs = signal.support_output_versions()
+                    action_supports = action.support_signal_output_versions()
+
+                    if len(find_common_elements(signal_outputs, action_supports)) == 0:
+                        raise ActionAndSignalNotMatch(
+                                f"Action '{action.get_name()}' not match with any output of signal '{signal.get_name()}'"
+                        )
+
         return _input_configs
 
     def generate(self):
-        self.logger.info(
-                f"Process generate with strategy '{self.strategy_name}' and input type {self.strategy_inputs_type} with data {self.strategy_inputs}"
+        self.logger.debug(
+                f"Process generate with strategy '{self.strategy_name}' and input type '{self.strategy_inputs_type}' with data {self.strategy_inputs}"
         )
         client = http_client()
         url = TradeUrlValue.TRADING_STRATEGY_PROCESS_URL
         # call api service to generate jobs for strategy and it's inputs
         for config in self.strategy_inputs:
+            self.logger.info(
+                    f"Process strategy '{self.strategy_name}' with input name '{config.get('data').get('name')}'"
+            )
             strategy_input = config['data']['input']
             from_date, to_date = self._get_range_data(strategy_input["range"])
             hash_key = get_strategy_hash(
@@ -149,22 +165,25 @@ class PredefinedStrategyGenerator(StrategyGeneratorAbstract):
                     "hash_key": hash_key
             }
 
-            self.logger.info(f"Will send to API server to process strategy with data {data}")
+            try:
+                self.logger.info(f"Will send to API server to process strategy with data {data}")
 
-            res = client.post(url, data)
+                res = client.post(url, data)
 
-            if res is None:
-                return
+                if res is None:
+                    return
 
-            if res.status_code == 409:
-                self.logger.warning(
-                        f"[yellow]DUPLICATED[/yellow] Already generated for strategy '{self.strategy_name}' and input name '{config['data']['name']}'"
-                )
-            elif res.status_code == 201:
-                self.logger.info(
-                        f"OK generated for strategy '{self.strategy_name}' and input name '{config['data']['name']}'"
-                )
-            else:
-                self.logger.warning(
-                        f"Could not generate in api server with response {res.text}"
-                )
+                if res.status_code == 409:
+                    self.logger.warning(
+                            f"[yellow]DUPLICATED[/yellow] Already generated for strategy '{self.strategy_name}' and input name '{config['data']['name']}'"
+                    )
+                elif res.status_code == 201:
+                    self.logger.info(
+                            f"OK generated for strategy '{self.strategy_name}' and input name '{config['data']['name']}'"
+                    )
+                else:
+                    self.logger.warning(
+                            f"Could not generate in api server with response {res.text}"
+                    )
+            except Exception as e:
+                self.logger.error("An error occurred when send to downstream: %s", e, exc_info = True)
