@@ -93,15 +93,15 @@ class PredefinedStrategyGenerator(StrategyGeneratorAbstract):
                 _input_configs.append({"file": _file, "data": data})
 
         # Simulate load input for validation, we want all inputs is valid before send it to api server to create job
-        self.logger.debug("Will simulate load strategy and it's signal and action for validate input")
+        self.logger.info("Will simulate load strategy and it's signal and action for validate input")
         for _input_config in _input_configs:
             self.strategy.load_input(input_config = _input_config["data"])
-            self.logger.debug(f"OK validate input for strategy [blue]{_input_config['data']['name']}[/blue]")
+            self.logger.info(f"OK validate input for strategy [blue]{_input_config['data']['name']}[/blue]")
 
             # Simulate load filter to verify input
             filter_input = _input_config["data"]["input"]["filter"]
             filters = filter_input['filters']
-            self.logger.debug("Will simulate load filters")
+            self.logger.info("Will simulate load filters")
             for filter_class_name in filters:
                 filter_class = filter_manager().get_class(filter_class_name)
 
@@ -110,12 +110,12 @@ class PredefinedStrategyGenerator(StrategyGeneratorAbstract):
 
                 filter_instance: FilterAbstract = filter_class()
                 filter_instance.load_input(filter_input['input'])
-                self.logger.debug(f"OK validate input for filter [blue]{filter_class_name}[/blue]")
+                self.logger.info(f"OK validate input for filter [blue]{filter_class_name}[/blue]")
 
             # Simulate load signal to verify input
             signal_input = _input_config["data"]["input"]["signal"]
             signals = signal_input['signals']
-            self.logger.debug("Will simulate load signals")
+            self.logger.info("Will simulate load signals")
             signal_instances = []
             for signal_class_name in signals:
                 signal_class = signal_manager().get_class(signal_class_name)
@@ -125,13 +125,13 @@ class PredefinedStrategyGenerator(StrategyGeneratorAbstract):
 
                 signal: SignalAbstract = signal_class()
                 signal.load_input(signal_input['input'])
-                self.logger.debug(f"OK validate input for signal [blue]{signal_class_name}[/blue]")
+                self.logger.info(f"OK validate input for signal [blue]{signal_class_name}[/blue]")
                 signal_instances.append(signal)
 
             # Simulate load action to verify input
             action_input = _input_config["data"]["input"]["action"]
             actions = action_input['actions']
-            self.logger.debug("Will simulate load actions")
+            self.logger.info("Will simulate load actions")
             for action_class_name in actions:
                 action_class = action_manager().get_class(action_class_name)
 
@@ -140,7 +140,7 @@ class PredefinedStrategyGenerator(StrategyGeneratorAbstract):
 
                 action: ActionAbstract = action_class()
                 action.load_input(action_input['input'])
-                self.logger.debug(f"OK validate input for action [blue]{action_class_name}[/blue]")
+                self.logger.info(f"OK validate input for action [blue]{action_class_name}[/blue]")
 
                 # verify each action can understand output schema
                 for signal in signal_instances:
@@ -155,12 +155,14 @@ class PredefinedStrategyGenerator(StrategyGeneratorAbstract):
         return _input_configs
 
     def generate(self):
-        self.logger.debug(
+        self.logger.info(
                 f"Process generate with strategy '{self.strategy_name}' and input type '{self.strategy_inputs_type}' with data {self.strategy_inputs}"
         )
         client = http_client()
         url = TradeUrlValue.TRADING_STRATEGY_PROCESS_URL
+
         # call api service to generate jobs for strategy and it's inputs
+        self.logger.info(f"Size of strategy inputs {len(self.strategy_inputs)}")
         for config in self.strategy_inputs:
             self.logger.info(
                     f"Process strategy '{self.strategy_name}' with input name '{config.get('data').get('name')}'"
