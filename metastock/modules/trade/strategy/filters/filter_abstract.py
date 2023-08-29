@@ -1,0 +1,43 @@
+from abc import ABC, abstractmethod
+from enum import Enum
+
+from jsonschema.validators import validate
+
+from metastock.modules.trade.error import NotSupportConfigType
+from metastock.modules.trade.strategy.filters.input_schema import FILTER_INPUT_SCHEMA_V1, FILTER_INPUT_SCHEMA_V1_NAME
+
+
+class FilterType(Enum):
+    GLOBAL = 1
+    DAY = 2
+
+
+class FilterAbstract(ABC):
+    name = None
+
+    def __init__(self):
+        self.type = FilterType.GLOBAL
+
+    def get_name(self):
+        return self.name
+
+    def get_type(self) -> FilterType:
+        return self.type
+
+    @abstractmethod
+    def filter(self, symbol: str) -> bool:
+        pass
+
+    def load_input(self, input_config: dict):
+        api = input_config['api']
+
+        if api == FILTER_INPUT_SCHEMA_V1_NAME:
+            return self._load_input_v1(input_config)
+
+        raise NotSupportConfigType(f"Not support this config input api {api}")
+
+    def _load_input_v1(self, input_config):
+        try:
+            validate(input_config, FILTER_INPUT_SCHEMA_V1)
+        except Exception as e:
+            raise NotSupportConfigType(f"Wrong format of {FILTER_INPUT_SCHEMA_V1_NAME}")

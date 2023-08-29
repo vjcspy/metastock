@@ -1,12 +1,12 @@
 from metastock.modules.trade.strategy.abstract_manager import AbstractManager
 
 
-class ASignalManager(AbstractManager):
+class SignalManager(AbstractManager):
     INSTANCE = None
 
 
-def signal_manager() -> ASignalManager:
-    if ASignalManager.INSTANCE is None:
-        ASignalManager.INSTANCE = ASignalManager()
+def signal_manager() -> SignalManager:
+    if SignalManager.INSTANCE is None:
+        SignalManager.INSTANCE = SignalManager()
 
-    return ASignalManager.INSTANCE
+    return SignalManager.INSTANCE

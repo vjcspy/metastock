@@ -11,7 +11,22 @@
       },
       "to": {}
     },
-    "filter": {},
+    "filter": {
+      "filters": [
+        "capitalization_filter",
+        "specific_symbols_filter"
+      ],
+      "input": {
+        "api": "@filter/input/v1",
+        "input": {
+          "specific_symbols_filter": {
+            "symbols": [
+              "BFC"
+            ]
+          }
+        }
+      }
+    },
     "signal": {
       "signals": [
         "simple_sqz_mom_signal"

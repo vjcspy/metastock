@@ -5,7 +5,7 @@ from metastock.modules.core.util.find_common_elements import find_common_element
 from metastock.modules.core.util.http_client import http_client
 from metastock.modules.trade.error import (
     ActionAndSignalNotMatch, StrategyActionNotFound,
-    StrategySignalNotFound,
+    StrategyFilterNotFound, StrategySignalNotFound,
     TradeFileNotFoundError,
     StrategyNotFound,
 )
@@ -18,6 +18,8 @@ import jsonschema
 from metastock.modules.trade.strategy import strategy_manager
 from metastock.modules.trade.strategy.actions import action_manager
 from metastock.modules.trade.strategy.actions.action_abstract import ActionAbstract
+from metastock.modules.trade.strategy.filters import filter_manager
+from metastock.modules.trade.strategy.filters.filter_abstract import FilterAbstract
 from metastock.modules.trade.strategy.signals import signal_manager
 from metastock.modules.trade.strategy.signals.signal_abstract import SignalAbstract
 from metastock.modules.trade.strategy.strategy_abstract import StrategyAbstract
@@ -95,6 +97,20 @@ class PredefinedStrategyGenerator(StrategyGeneratorAbstract):
         for _input_config in _input_configs:
             self.strategy.load_input(input_config = _input_config["data"])
             self.logger.debug(f"OK validate input for strategy [blue]{_input_config['data']['name']}[/blue]")
+
+            # Simulate load filter to verify input
+            filter_input = _input_config["data"]["input"]["filter"]
+            filters = filter_input['filters']
+            self.logger.debug("Will simulate load filters")
+            for filter_class_name in filters:
+                filter_class = filter_manager().get_class(filter_class_name)
+
+                if filter_class is None:
+                    raise StrategyFilterNotFound()
+
+                filter_instance: FilterAbstract = filter_class()
+                filter_instance.load_input(filter_input['input'])
+                self.logger.debug(f"OK validate input for filter [blue]{filter_class_name}[/blue]")
 
             # Simulate load signal to verify input
             signal_input = _input_config["data"]["input"]["signal"]

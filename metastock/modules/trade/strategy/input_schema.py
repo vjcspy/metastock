@@ -1,4 +1,5 @@
 from metastock.modules.trade.strategy.actions.input_schema import ACTION_INPUT_SCHEMA_V1
+from metastock.modules.trade.strategy.filters.input_schema import FILTER_INPUT_SCHEMA_V1
 from metastock.modules.trade.strategy.signals.input_schema import SIGNAL_INPUT_SCHEMA_V1
 
 STRATEGY_INPUT_SCHEMA_V1_NAME = '@predefined_input/strategy/v1'
@@ -49,7 +50,14 @@ STRATEGY_INPUT_SCHEMA_V1 = {
                                         "required": ["type", "from"]
                                 },
                                 "filter": {
-                                        "type": "object"
+                                        "type": "object",
+                                        "properties": {
+                                                "filters": {
+                                                        "type": "array",
+                                                        "items": {"type": "string"}
+                                                },
+                                                "input": FILTER_INPUT_SCHEMA_V1
+                                        }
                                 },
                                 "signal": {
                                         "type": "object",
