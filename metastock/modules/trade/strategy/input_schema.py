@@ -1,6 +1,8 @@
 from metastock.modules.trade.strategy.actions.input_schema import ACTION_INPUT_SCHEMA_V1
 from metastock.modules.trade.strategy.signals.input_schema import SIGNAL_INPUT_SCHEMA_V1
 
+STRATEGY_INPUT_SCHEMA_V1_NAME = '@predefined_input/strategy/v1'
+
 STRATEGY_INPUT_SCHEMA_V1 = {
         "type": "object",
         "properties": {

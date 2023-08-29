@@ -30,3 +30,7 @@ class StrategyAbstract(ABC):
         from_date and to_date may be passed because they are resolved before send to API server in case relative date
         """
         pass
+
+    @abstractmethod
+    def execute(self):
+        pass

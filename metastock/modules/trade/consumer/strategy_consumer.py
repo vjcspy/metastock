@@ -36,8 +36,9 @@ class StrategyConsumer(RabbitMQConsumer):
             if hash is None or symbol is None:
                 raise UnknownMessageFromQueue()
 
+            self.logger.info("Will send request to API downstream to get strategy process")
             strategy_data: dict = get_strategy_process(hash_key = hash_key, symbol = symbol)
-            self.logger.debug(f'Strategy process data from API {strategy_data}')
+            self.logger.debug(f'Strategy process data from downstream {strategy_data}')
             strategy_class = strategy_manager().get_class(strategy_data.get('name'))
 
             if strategy_class is None:
@@ -51,6 +52,8 @@ class StrategyConsumer(RabbitMQConsumer):
                     from_date = strategy_data.get('from'),
                     to_date = strategy_data.get('to')
             )
+            strategy.set_symbol(symbol)
+            strategy.execute()
 
             sleep(1000)
             ch.basic_ack(delivery_tag = method.delivery_tag)
@@ -58,7 +61,7 @@ class StrategyConsumer(RabbitMQConsumer):
         except Exception as e:
             Logger().error("An error occurred: %s", e, exc_info = True)
 
-            sleep(1000)
+            sleep(300)
             # Negative Acknowledge the message
             ch.basic_nack(delivery_tag = method.delivery_tag, requeue = True)
             Logger().warning("Message not acknowledged, re-queued.")
