@@ -181,7 +181,7 @@ class TestPriceHistoryHelperRealData:
         - Check if the data is retrieved successfully.
         - Check if the standard deviation can be calculated with the retrieved data.
         """
-        data = get_json_data("http://localhost:3000/stock-price/history?code=BFC&from=2023-07-01")
+        data = get_json_data("https://stock.bluestone.systems/stock-price/history?code=BFC&from=2023-07-01")
 
         if data is not None:
             helper = PriceHistoryHelper(data)

@@ -1,29 +1,12 @@
 import pandas as pd
 from datetime import datetime
-from marshmallow import Schema, fields, validate
+
+from metastock.modules.com.schema.price_history_schema import priceHistorySchema
 from metastock.modules.core.util.df_get_row_by_column_value import df_get_row_by_column_value
 
 
 def average_price(row):
     return (row['high'] + row['low']) / 2
-
-
-class PriceHistorySchema(Schema):
-    date = fields.Date(required=True)
-    high = fields.Integer(required=True, validate=validate.Range(min=0))
-    low = fields.Integer(required=True, validate=validate.Range(min=0))
-    close = fields.Integer(required=True, validate=validate.Range(min=0))
-    open = fields.Integer(required=True, validate=validate.Range(min=0))
-    volume = fields.Integer(required=True, validate=validate.Range(min=0))
-    trade = fields.Integer(required=True, validate=validate.Range(min=0))
-    value = fields.Integer(required=True, validate=validate.Range(min=0))
-    buy = fields.Integer(required=True, validate=validate.Range(min=0))
-    buyQuantity = fields.Integer(required=True, validate=validate.Range(min=0))
-    sell = fields.Integer(required=True, validate=validate.Range(min=0))
-    sellQuantity = fields.Integer(required=True, validate=validate.Range(min=0))
-
-
-schema = PriceHistorySchema()
 
 
 class PriceHistoryHelper:
@@ -34,20 +17,20 @@ class PriceHistoryHelper:
     _date: str = datetime.today().strftime('%Y-%m-%d')
     _df: pd.DataFrame | None
 
-    def __init__(self, data, skip_validate=False):
+    def __init__(self, data, skip_validate = False):
 
         if not skip_validate and isinstance(data, list) and len(data) > 0:
-            schema.load(data[0])
+            priceHistorySchema.load(data[0])
         self._data = data
         self._df = None
 
     def _get_df(self):
         if self._df is None:
             df = pd.DataFrame(self._data)
-            self._df = df.sort_values(by='date', ascending=False)
-            self._df.reset_index(drop=True, inplace=True)
+            self._df = df.sort_values(by = 'date', ascending = False)
+            self._df.reset_index(drop = True, inplace = True)
 
-        return self._df.copy(deep=True)
+        return self._df.copy(deep = True)
 
     def _get_start_date(self, end_date, length):
         data_df = self._get_df()
@@ -79,7 +62,7 @@ class PriceHistoryHelper:
 
         return sma_data["close"].mean()
 
-    def sma_by_source_func(self, length: int, cal_source_func=lambda row: row['close']) -> float | None:
+    def sma_by_source_func(self, length: int, cal_source_func = lambda row: row['close']) -> float | None:
         df_sorted = self._get_df()
         idx = self._get_target_date_index(df_sorted)
 
@@ -87,11 +70,11 @@ class PriceHistoryHelper:
             return None
 
         sma_data = df_sorted.iloc[idx:idx + length]
-        transformed_data = sma_data.apply(cal_source_func, axis=1)
+        transformed_data = sma_data.apply(cal_source_func, axis = 1)
 
         return transformed_data.mean()
 
-    def stdev(self, length: int, cal_source_func=lambda row: row['close']):
+    def stdev(self, length: int, cal_source_func = lambda row: row['close']):
         """
         Calculate the standard deviation of a specific data source over a given length.
 
@@ -114,7 +97,7 @@ class PriceHistoryHelper:
             return None
 
         # Sử dụng hàm func để biến đổi dữ liệu
-        transformed_data = filtered_df.apply(cal_source_func, axis=1)
+        transformed_data = filtered_df.apply(cal_source_func, axis = 1)
 
         return transformed_data.std()
 
@@ -191,7 +174,7 @@ class PriceHistoryHelper:
     def get_current_price(self):
         return df_get_row_by_column_value(self._get_df(), 'date', self._date)
 
-    def get_row_data_by_source_func(self, cal_source_func=lambda row: row['close']):
+    def get_row_data_by_source_func(self, cal_source_func = lambda row: row['close']):
         """
         Get the transformed data for the current target date using a custom source function.
 

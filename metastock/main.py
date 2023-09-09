@@ -8,7 +8,7 @@ from termcolor import colored
 from rich.console import Console
 from rich.text import Text
 
-from metastock.config.consumer_config import CONSUMERS
+from metastock.modules import consumer_manager
 from metastock.modules.core.logging.logger import Logger
 from metastock.modules.rabbitmq.connection_manager import rabbitmq_manager
 
@@ -48,11 +48,7 @@ def queue_consumer_start(name: Annotated[str, typer.Option(help = "Name of consu
     _introduce()
     rabbitmq_manager().initialize()
 
-    consumer = None
-
-    for consumer_class in CONSUMERS:
-        if consumer_class.name == name:
-            consumer = consumer_class()
+    consumer = consumer_manager().get_consumer(name)
 
     if consumer is not None:
         consumer.run()

@@ -13,8 +13,10 @@ class SqzMomConfig:
     length_kc: int
     mult_kc: float
 
-    def __init__(self, length_bb=20, mult_bb=2, length_kc=20, mult_kc=1.5, use_true_range=True,
-                 cal_source_func=lambda row: row['close']):
+    def __init__(
+            self, length_bb = 20, mult_bb = 2, length_kc = 20, mult_kc = 1.5, use_true_range = True,
+            cal_source_func = lambda row: row['close']
+            ):
         self.use_true_range = use_true_range
         self.cal_source_func = cal_source_func
         self.mult_kc = mult_kc
@@ -24,14 +26,14 @@ class SqzMomConfig:
 
 
 class SqzMom(TechnicalIndicatorAbstract):
-    def validate_input(self) -> bool:
+    def validate_config(self):
         return True
 
     def set_config(self, config: SqzMomConfig):
         self._config = config
 
         # Check if input data is satisfied with config
-        self.validate_input()
+        self.validate_config()
 
     def get_data(self):
         super().get_data()
