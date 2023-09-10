@@ -1,4 +1,4 @@
-from metastock import Logger
+from metastock.modules.core.logging.logger import Logger
 from metastock.modules.core.util.http_client import http_client
 from metastock.modules.trade.request.schema.response import GET_STRATEGY_PROCESS_SCHEMA
 from metastock.modules.trade.value.url import TradeUrlValue

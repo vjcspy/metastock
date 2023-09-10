@@ -1,4 +1,4 @@
-from metastock import Logger
+from metastock.modules.core.logging.logger import Logger
 from metastock.modules.rabbitmq.job_worker import JobWorker
 
 

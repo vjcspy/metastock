@@ -38,7 +38,7 @@ STRATEGY_INPUT_SCHEMA_V1 = {
                                                                 },
                                                                 "amount_type": {
                                                                         "type": "string",
-                                                                        "enum": ["years"]
+                                                                        "enum": ["years", "months"]
                                                                 }
                                                         },
                                                         "required": ["modify", "amount", "amount_type"]

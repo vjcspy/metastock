@@ -1,7 +1,6 @@
 import json
 from abc import ABC, abstractmethod
 
-from termcolor import colored
 
 from metastock.modules.core.logging.logger import Logger
 from metastock.modules.rabbitmq.connection_manager import rabbitmq_manager

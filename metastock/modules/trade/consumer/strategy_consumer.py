@@ -1,7 +1,7 @@
 import json
 from time import sleep
 
-from metastock import Logger
+from metastock.modules.core.logging.logger import Logger
 from metastock.modules.rabbitmq.consumer import RabbitMQConsumer
 from metastock.modules.trade.error import StrategyNotFound, UnknownMessageFromQueue
 from metastock.modules.trade.request.get_strategy_process import get_strategy_process
@@ -55,13 +55,11 @@ class StrategyConsumer(RabbitMQConsumer):
             strategy.set_symbol(symbol)
             strategy.execute()
 
-            sleep(1000)
             ch.basic_ack(delivery_tag = method.delivery_tag)
             Logger().info("Message acknowledged.")
         except Exception as e:
             Logger().error("An error occurred: %s", e, exc_info = True)
 
-            sleep(300)
             # Negative Acknowledge the message
             ch.basic_nack(delivery_tag = method.delivery_tag, requeue = True)
             Logger().warning("Message not acknowledged, re-queued.")

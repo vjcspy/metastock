@@ -5,6 +5,7 @@ from jsonschema.validators import validate
 
 from metastock.modules.trade.error import NotSupportConfigType
 from metastock.modules.trade.strategy.filters.input_schema import FILTER_INPUT_SCHEMA_V1, FILTER_INPUT_SCHEMA_V1_NAME
+from metastock.modules.trade.strategy.strategy_abstract import StrategyAbstract
 
 
 class FilterType(Enum):
@@ -13,9 +14,11 @@ class FilterType(Enum):
 
 
 class FilterAbstract(ABC):
+    strategy: StrategyAbstract | None
     name = None
 
     def __init__(self):
+        self.strategy = None
         self.type = FilterType.GLOBAL
 
     def get_name(self):
@@ -41,3 +44,12 @@ class FilterAbstract(ABC):
             validate(input_config, FILTER_INPUT_SCHEMA_V1)
         except Exception as e:
             raise NotSupportConfigType(f"Wrong format of {FILTER_INPUT_SCHEMA_V1_NAME}")
+
+    def set_strategy(self, strategy: StrategyAbstract):
+        self.strategy = strategy
+
+    def get_strategy(self) -> StrategyAbstract:
+        if self.strategy is None:
+            raise Exception('Please set strategy for signal before use')
+
+        return self.strategy

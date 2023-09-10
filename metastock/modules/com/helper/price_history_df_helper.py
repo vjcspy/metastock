@@ -15,21 +15,22 @@ class PriceHistoryDfHelper:
 
     def get_df(self) -> pd.DataFrame:
         """
-
+        Lưu ý là index của DF là cột date
         :return:
         """
         if self._df is None:
             df = pd.DataFrame(self._data)
             self._df = df.sort_values(by = 'date', ascending = False)
-            self._df.reset_index(drop = True, inplace = True)
+            self._df['date'] = pd.to_datetime(df['date'])
+            self._df.set_index('date', inplace = True)
+            # self._df.reset_index(drop = True, inplace = True)
 
         return self._df.copy(deep = True)
 
     def create_source_series(
             self,
-            index_col: str = 'date',
             value_func: Callable = lambda row: row['close']
-            ) -> pd.Series:
+    ) -> pd.Series:
         """
         Tạo một pandas Series từ một DataFrame với index và giá trị được tính toán
         thông qua các tham số.
@@ -44,12 +45,6 @@ class PriceHistoryDfHelper:
         """
         # Khởi tạo DataFrame từ dữ liệu JSON
         df = self.get_df()
-
-        # Chuyển đổi cột index_col thành kiểu datetime và đặt nó làm index
-        if index_col == 'date':
-            df[index_col] = pd.to_datetime(df[index_col])
-
-        df.set_index(index_col, inplace = True)
 
         # Áp dụng function để tính toán giá trị
         result_series = df.apply(value_func, axis = 1)

@@ -4,12 +4,16 @@ from metastock.modules.trade.strategy.signals.signal_abstract import SignalAbstr
 from metastock.modules.trade.strategy.strategy_abstract import StrategyAbstract
 
 
-class SimpleActionV1(ActionAbstract):
-
-    name = 'simple_action_v1'
+class AlertActionV1(ActionAbstract):
+    name = 'alert_action_v1'
 
     def support_signal_output_versions(self) -> list[str]:
         return [SIGNAL_OUTPUT_SCHEMA_V1_NAME]
 
     def run(self, strategy: StrategyAbstract, signals: list[SignalAbstract]):
-        pass
+        for signal in signals:
+            version_compatible = self._get_compatible_versions(signal).pop(0)
+
+            signal_output = signal.get_output(version_compatible)
+
+            a = 1

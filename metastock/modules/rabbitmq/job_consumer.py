@@ -3,7 +3,7 @@ from typing import Type
 
 from marshmallow import ValidationError
 
-from metastock import Logger
+from metastock.modules.core.logging.logger import Logger
 from metastock.modules.rabbitmq.consumer import RabbitMQConsumer
 from metastock.modules.rabbitmq.job_worker import JobWorker
 from metastock.modules.rabbitmq.schema import job_consumer_body_schema

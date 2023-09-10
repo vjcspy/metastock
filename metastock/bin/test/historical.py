@@ -1,7 +1,7 @@
 import pandas as pd
 import arrow
 
-from metastock import Logger
+from metastock.modules.core.logging.logger import Logger
 from metastock.modules.core.util.get_json_data import get_json_data
 from metastock.modules.core.util.http_client import http_client
 

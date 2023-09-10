@@ -12,7 +12,8 @@ ACTION_INPUT_SCHEMA_V1 = {
                         "type": "object",
                         "properties": {
                                 "buy": {},
-                                "sell": {}
+                                "sell": {},
+                                "alert": {}
                         }
                 }
         },

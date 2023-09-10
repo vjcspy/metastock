@@ -1,16 +1,16 @@
 from typing import Annotated
 
 import typer
-from rich.panel import Panel
 from rich.progress import track
 import time
 from termcolor import colored
 from rich.console import Console
-from rich.text import Text
 
-from metastock.modules import consumer_manager
+from metastock.config.app_config import APP_VERSION
 from metastock.modules.core.logging.logger import Logger
 from metastock.modules.rabbitmq.connection_manager import rabbitmq_manager
+from metastock.modules.rabbitmq.consumer_manager import consumer_manager
+from metastock.modules.trade.generator.predefined_strategy_generator import PredefinedStrategyGenerator
 
 app = typer.Typer()
 
@@ -20,7 +20,7 @@ console = Console()
 
 
 def _introduce():
-    pass
+    Logger().info(f"App version: {APP_VERSION}")
 
 
 def _test_progress():
@@ -41,7 +41,7 @@ def callback():
 
 
 @app.command(name = 'queue:consumer:start')
-def queue_consumer_start(name: Annotated[str, typer.Option(help = "Name of consumer.")]):
+def queue_consumer_start(name: Annotated[str, typer.Argument(help = "Name of consumer.")]):
     """
     Start rabbitmq consumer
     """
@@ -52,6 +52,22 @@ def queue_consumer_start(name: Annotated[str, typer.Option(help = "Name of consu
 
     if consumer is not None:
         consumer.run()
+
+
+@app.command(name = 'strategy:generator:predefine')
+def queue_consumer_start(input: Annotated[str, typer.Argument(help = "Input file.")]):
+    """
+    Use Predefined strategy for generate process
+    """
+    _introduce()
+    try:
+        generator = PredefinedStrategyGenerator(
+                predefined_input = input
+        )
+
+        generator.generate()
+    except Exception as e:
+        Logger().error("An error occurred: %s", e, exc_info = True)
 
 
 @app.command()

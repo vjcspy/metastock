@@ -39,3 +39,8 @@ class UnknownMessageFromQueue(AppError):
 class ActionAndSignalNotMatch(AppError):
     def __init__(self, message = "Action and signal's output not match ", code = 'trade_general_error_000'):
         super().__init__(message, code)
+
+
+class CouldNotExecuteStrategy(AppError):
+    def __init__(self, message = "Could not execute strategy", code = 'trade_strategy_error_000'):
+        super().__init__(message, code)

@@ -21,7 +21,9 @@ class Hullma(TechnicalIndicatorAbstract):
 
     def __init__(self, history: list):
         super().__init__(history)
-        self.set_config(HullmaConfig())
+
+        # default config
+        self._config = HullmaConfig()
 
     def get_data(self) -> pd.Series:
         config: HullmaConfig = self.get_config()
