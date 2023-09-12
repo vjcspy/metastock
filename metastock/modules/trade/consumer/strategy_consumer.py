@@ -59,7 +59,7 @@ class StrategyConsumer(RabbitMQConsumer):
             Logger().info("Message acknowledged.")
         except Exception as e:
             Logger().error("An error occurred: %s", e, exc_info = True)
-
             # Negative Acknowledge the message
-            ch.basic_nack(delivery_tag = method.delivery_tag, requeue = True)
+            ch.basic_nack(delivery_tag = method.delivery_tag, requeue = False)
             Logger().warning("Message not acknowledged, re-queued.")
+            sleep(1)

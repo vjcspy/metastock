@@ -6,11 +6,11 @@ import simplejson as json
 
 from metastock.modules.core.logging.logger import Logger
 from metastock.modules.core.util.http_client import http_client
-from metastock.modules.trade.error import (StrategyNotFound, TradeFileNotFoundError)
+from metastock.modules.trade.error import (CouldNotResolveUrlConfig, StrategyNotFound, TradeFileNotFoundError)
 from metastock.modules.trade.generator.input_schema import PRE_DEFINED_INPUT_SCHEMA_V1
 from metastock.modules.trade.generator.strategy_generator_abstract import StrategyGeneratorAbstract
-from metastock.modules.trade.strategy import strategy_manager
 from metastock.modules.trade.strategy.strategy_abstract import StrategyAbstract
+from metastock.modules.trade.strategy.strategy_manager import strategy_manager
 from metastock.modules.trade.util.get_strategy_hash import get_strategy_hash
 from metastock.modules.trade.value.url import TradeUrlValue
 
@@ -96,6 +96,9 @@ class PredefinedStrategyGenerator(StrategyGeneratorAbstract):
         self.logger.debug(f"strategy inputs data {self.strategy_inputs}")
         client = http_client()
         url = TradeUrlValue.TRADING_STRATEGY_PROCESS_URL
+
+        if url is None:
+            raise CouldNotResolveUrlConfig()
 
         # call api service to generate jobs for strategy and it's inputs
         self.logger.info(f"Size of strategy inputs {len(self.strategy_inputs)}")

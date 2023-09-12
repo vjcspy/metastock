@@ -1,7 +1,10 @@
+import pandas as pd
+
 from metastock.modules.com.technical_indicator.hullma import Hullma, HullmaConfig
+from metastock.modules.core.logging.logger import Logger
 from metastock.modules.trade.strategy.signals.output_schema import SIGNAL_OUTPUT_SCHEMA_V1_NAME
 from metastock.modules.trade.strategy.signals.signal_abstract import SignalAbstract
-from metastock.modules.trade.util.predict_trend_change import predict_trend_change
+from metastock.modules.trade.util.predict_trend_change import predict_trend_change, predict_trend_change_v1
 
 
 class HullmaSignal(SignalAbstract):
@@ -15,6 +18,7 @@ class HullmaSignal(SignalAbstract):
             return self._get_output_v1()
 
     def _get_output_v1(self):
+        Logger().info("Will generate Hullma output v1 ")
         price_history = self.get_strategy().price_history
         input_data = self.get_input()
 
@@ -30,15 +34,21 @@ class HullmaSignal(SignalAbstract):
         hullma.set_config(hullma_config)
         hullma_data = hullma.get_data()
 
+        Logger().ok(f"generated Hullma data for {self.strategy.get_symbol()}")
+
         # just only for alerting
-        predict_trend = predict_trend_change(hullma_data, 5)
+        Logger().info(f"Will generate predict_trend_change_v1 for {self.strategy.get_symbol()}")
+        predict_trend = predict_trend_change_v1(hullma_data)
+        Logger().ok(f"generated predict_trend_change_v1 for {self.strategy.get_symbol()}")
 
-        result = []
-
+        Logger().info(f"Will build Hullma output for {self.strategy.get_symbol()}")
+        results = []
         for price in price_history:
             date = price['date']
 
+            desired_date = pd.to_datetime(date)
             day_signal = {
+                    "date": date,
                     "buy": {},
                     "sell": {},
                     "alert": {
@@ -46,13 +56,18 @@ class HullmaSignal(SignalAbstract):
                     }
             }
 
-            predict_trend_day = predict_trend.loc[date]
+            try:
+                predict_trend_day = predict_trend.loc[desired_date, "next_day"]
 
-            if predict_trend_day is not None:
-                if 0 < predict_trend_day["estimate_day_change"] < 3:
+                if predict_trend_day:
                     day_signal["alert"] = {
                             "notify": True,
-                            "message": f"Detect hullma change soon with config length {hullma_config.length}"
+                            "message": f"Detect hullma change next day with config length {hullma_config.length}"
                     }
+            except:
+                pass
 
-            result.append(day_signal)
+            results.append(day_signal)
+
+        Logger().ok(f"built Hullma output for {self.strategy.get_symbol()}")
+        return results

@@ -44,3 +44,8 @@ class ActionAndSignalNotMatch(AppError):
 class CouldNotExecuteStrategy(AppError):
     def __init__(self, message = "Could not execute strategy", code = 'trade_strategy_error_000'):
         super().__init__(message, code)
+
+
+class CouldNotResolveUrlConfig(AppError):
+    def __init__(self, message = "Could not resolve url from env config", code = 'trade_strategy_error_000'):
+        super().__init__(message, code)

@@ -11,10 +11,10 @@ from metastock.modules.trade.error import (
     StrategyActionNotFound, StrategyFilterNotFound,
     StrategySignalNotFound,
 )
-from metastock.modules.trade.strategy.actions import action_manager
-from metastock.modules.trade.strategy.filters import filter_manager
+from metastock.modules.trade.strategy.actions.action_manager import action_manager
+from metastock.modules.trade.strategy.filters.filter_manager import filter_manager
 from metastock.modules.trade.strategy.input_schema import STRATEGY_INPUT_SCHEMA_V1, STRATEGY_INPUT_SCHEMA_V1_NAME
-from metastock.modules.trade.strategy.signals import signal_manager
+from metastock.modules.trade.strategy.signals.signal_manager import signal_manager
 from metastock.modules.trade.value.url import TradeUrlValue
 
 
@@ -55,6 +55,9 @@ class StrategyAbstract(ABC):
         self.symbol = symbol
 
         return self
+
+    def get_symbol(self):
+        return self.symbol
 
     def load_input(self, input_config: dict, from_date: str = None, to_date: str = None) -> bool:
         """
@@ -132,6 +135,8 @@ class StrategyAbstract(ABC):
 
             action.set_strategy(self)
 
+            self.actions.append(action)
+
             # verify each action can understand output schema
             for signal in self.signals:
                 signal_outputs = signal.support_output_versions()
@@ -150,7 +155,8 @@ class StrategyAbstract(ABC):
         Load price history base on date from input config
         """
 
-        url = f"${TradeUrlValue.STOCK_PRICE_HISTORY_URL}?code={self.symbol}"
+        url = f"{TradeUrlValue.STOCK_PRICE_HISTORY_URL}?code={self.symbol}"
+        # url = f"{TradeUrlValue.STOCK_PRICE_HISTORY_URL}?code={'VCB'}"
         url = f"{url}&from={self.from_date}&to={self.to_date}"
 
         client = http_client()
@@ -164,15 +170,16 @@ class StrategyAbstract(ABC):
 
             _json = res.json()
             if not isinstance(_json, list) or len(_json) == 0:
-                raise CouldNotExecuteStrategy("Due to price history is EMPTY")
+                raise CouldNotExecuteStrategy(f"Due to price history is EMPTY {self.symbol}")
 
             price_sorted = sorted(_json, key = lambda x: x['date'], reverse = True)
-
+            Logger().ok(f"get price history for {self.symbol}")
             self.price_history = price_sorted
+
         except Exception as e:
             Logger().error(
                     "An error occurred when send to downstream: %s",
                     e,
             )
 
-            raise CouldNotExecuteStrategy("Due to error get price history data")
+            raise CouldNotExecuteStrategy(f"Due to error get price history data {self.symbol}")

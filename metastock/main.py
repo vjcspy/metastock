@@ -7,7 +7,10 @@ from termcolor import colored
 from rich.console import Console
 
 from metastock.config.app_config import APP_VERSION
+from metastock.config.queue_config import init_queue_config
+from metastock.config.trading_config import init_trading_strategy_config
 from metastock.modules.core.logging.logger import Logger
+from metastock.modules.core.util.environment import dump_env
 from metastock.modules.rabbitmq.connection_manager import rabbitmq_manager
 from metastock.modules.rabbitmq.consumer_manager import consumer_manager
 from metastock.modules.trade.generator.predefined_strategy_generator import PredefinedStrategyGenerator
@@ -17,6 +20,10 @@ app = typer.Typer()
 logger = Logger()
 
 console = Console()
+
+dump_env()
+init_trading_strategy_config()
+init_queue_config()
 
 
 def _introduce():
@@ -55,7 +62,7 @@ def queue_consumer_start(name: Annotated[str, typer.Argument(help = "Name of con
 
 
 @app.command(name = 'strategy:generator:predefine')
-def queue_consumer_start(input: Annotated[str, typer.Argument(help = "Input file.")]):
+def strategy_generator_predefine(input: Annotated[str, typer.Argument(help = "Input file.")]):
     """
     Use Predefined strategy for generate process
     """
