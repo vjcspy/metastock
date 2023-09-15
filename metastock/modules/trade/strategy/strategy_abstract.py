@@ -144,7 +144,7 @@ class StrategyAbstract(ABC):
 
                 if len(find_common_elements(signal_outputs, action_supports)) == 0:
                     raise ActionAndSignalNotMatch(
-                            f"Action '{action.get_name()}' not match with any output of signal '{signal.get_name()}'"
+                        f"Action '{action.get_name()}' not match with any output of signal '{signal.get_name()}'"
                     )
 
     def execute(self):
@@ -172,14 +172,17 @@ class StrategyAbstract(ABC):
             if not isinstance(_json, list) or len(_json) == 0:
                 raise CouldNotExecuteStrategy(f"Due to price history is EMPTY {self.symbol}")
 
-            price_sorted = sorted(_json, key = lambda x: x['date'], reverse = True)
+            price_sorted = sorted(_json, key=lambda x: x['date'], reverse=True)
             Logger().ok(f"get price history for {self.symbol}")
             self.price_history = price_sorted
 
         except Exception as e:
             Logger().error(
-                    "An error occurred when send to downstream: %s",
-                    e,
+                "An error occurred when send to downstream: %s",
+                e,
             )
 
             raise CouldNotExecuteStrategy(f"Due to error get price history data {self.symbol}")
+
+    def get_price_history(self):
+        return self.price_history

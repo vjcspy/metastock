@@ -21,20 +21,18 @@ class AlertActionV1(ActionAbstract):
             version_compatible = self._get_compatible_versions(signal).pop(0)
 
             signal_output = signal.get_output(version_compatible)
-            current_date = get_current_date_string()
 
-            price_history = self.get_strategy().price_history
+            price_history = self.get_strategy().get_price_history()
 
             for price in price_history:
-                date = price['date']
-                if check_recent_date(date, 10):
+                date: str = price['date']
+                if check_recent_date(date, 4):
                     Logger().info(f"Symbol '{self.strategy.get_symbol()}' checking alerting for date '{date}'")
                     # work for alert
-                    current_date_signal = next((item for item in signal_output if item['date'] == current_date), None)
+                    current_date_signal = next((item for item in signal_output if item['date'] == date), None)
                     alert = current_date_signal.get('alert')
                     is_noty = alert.get('notify')
 
                     if is_noty:
-                        sleep(2)
-                        Logger().info(f"Detect alerting: {strategy.get_symbol()}")
-                        write_to_file(f"{strategy.get_symbol()}", "check_symbol.log")
+                        Logger().info(f"{alert.get('message')}")
+                        write_to_file(f"{alert.get('message')}", "check_symbol.log")

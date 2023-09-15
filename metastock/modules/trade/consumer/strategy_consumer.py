@@ -14,9 +14,9 @@ class StrategyConsumer(RabbitMQConsumer):
 
     def __init__(self):
         super().__init__(
-                exchange = 'stock.trading.exchange',
-                queue = 'stock.trading.strategy.queue',
-                routing_key = 'stock.trading.strategy'
+            exchange='stock.trading.exchange',
+            queue='stock.trading.strategy.queue',
+            routing_key='stock.trading.strategy'
         )
         self.logger = Logger()
 
@@ -37,7 +37,7 @@ class StrategyConsumer(RabbitMQConsumer):
                 raise UnknownMessageFromQueue()
 
             self.logger.info("Will send request to API downstream to get strategy process")
-            strategy_data: dict = get_strategy_process(hash_key = hash_key, symbol = symbol)
+            strategy_data: dict = get_strategy_process(hash_key=hash_key, symbol=symbol)
             self.logger.debug(f'Strategy process data from downstream {strategy_data}')
             strategy_class = strategy_manager().get_class(strategy_data.get('name'))
 
@@ -48,18 +48,18 @@ class StrategyConsumer(RabbitMQConsumer):
             self.logger.debug(f'Will process strategy [blue]{strategy.get_name()}[/blue]')
 
             strategy.load_input(
-                    input_config = strategy_data.get('input'),
-                    from_date = strategy_data.get('from'),
-                    to_date = strategy_data.get('to')
+                input_config=strategy_data.get('input'),
+                from_date=strategy_data.get('from'),
+                to_date=strategy_data.get('to')
             )
             strategy.set_symbol(symbol)
             strategy.execute()
 
-            ch.basic_ack(delivery_tag = method.delivery_tag)
+            ch.basic_ack(delivery_tag=method.delivery_tag)
             Logger().info("Message acknowledged.")
         except Exception as e:
-            Logger().error("An error occurred: %s", e, exc_info = True)
+            Logger().error("An error occurred: %s", e, exc_info=True)
             # Negative Acknowledge the message
-            ch.basic_nack(delivery_tag = method.delivery_tag, requeue = False)
+            ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
             Logger().warning("Message not acknowledged, re-queued.")
-            sleep(1)
+            sleep(5)

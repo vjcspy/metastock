@@ -13,7 +13,7 @@ def predict_trend_change(wma_series: pd.Series, n: int) -> pd.DataFrame:
 
         # Áp dụng bình phương nhỏ nhất để tìm hệ số góc
         A = np.vstack([x, np.ones(len(x))]).T
-        m, c = np.linalg.lstsq(A, y, rcond = None)[0]
+        m, c = np.linalg.lstsq(A, y, rcond=None)[0]
 
         # Dự đoán số ngày để đổi chiều
         if m != 0:
@@ -23,11 +23,11 @@ def predict_trend_change(wma_series: pd.Series, n: int) -> pd.DataFrame:
             trend = "Stable"
 
         results.append(
-                {
-                        "date": wma_series.index[i - n],
-                        "slope": m,
-                        "estimate_day_change": days_to_zero if 0 < days_to_zero < 3 else None
-                }
+            {
+                "date": wma_series.index[i - n],
+                "slope": m,
+                "estimate_day_change": days_to_zero if 0 < days_to_zero < 3 else None
+            }
         )
 
     return pd.DataFrame(results).set_index("date")
@@ -41,18 +41,19 @@ def predict_trend_change_v1(series: pd.Series, n: int = 3) -> pd.DataFrame:
         y = diff.iloc[i - n + 1:i + 1]
 
         last = {
-                "date": diff.index[i],
-                "estimate_day_change": None,
-                "next_day": False
+            "date": diff.index[i],
+            "estimate_day_change": None,
+            "next_day": False
         }
 
         if not math.isnan(diff.iloc[i]) and diff.iloc[i] != 0:
             if diff.iloc[i] * diff.iloc[i - 1] < 0:
                 # doi dau chung to vua di qua 0
                 last = {
-                        "date": diff.index[i],
-                        "estimate_day_change": 0,
-                        "next_day": False
+                    "date": diff.index[i],
+                    "estimate_day_change": 0,
+                    "next_day": False,
+                    "trend": 'down' if diff.iloc[i - 1] > 0 else 'up'
                 }
             else:
                 z = y[::-1].diff()
@@ -61,18 +62,20 @@ def predict_trend_change_v1(series: pd.Series, n: int = 3) -> pd.DataFrame:
                 if not math.isnan(mean_abs) and mean_abs > 0:
                     day_change = abs(diff.iloc[i] / mean_abs)
                     last = {
-                            "date": diff.index[i],
-                            "estimate_day_change": day_change,
-                            "next_day": True if not math.isnan(day_change)
-                                                and (
-                                                        day_change < 1
-                                                        or (last['estimate_day_change'] is not None and
-                                                            last['estimate_day_change'] / day_change > 2 > day_change))
-                                                and (last is None or last['estimate_day_change'] != 0) else False
+                        "date": diff.index[i],
+                        "estimate_day_change": day_change,
+                        "next_day": True if not math.isnan(day_change)
+                                            and (
+                                                    day_change < 1
+                                                    or (last['estimate_day_change'] is not None and
+                                                        last['estimate_day_change'] / day_change > 2 and
+                                                        day_change < 5))
+                                            and (last is None or last['estimate_day_change'] != 0) else False,
+                        "trend": 'down' if diff.iloc[i] > 0 else 'up'
                     }
 
         results.append(
-                last
+            last
         )
 
     return pd.DataFrame(results).set_index("date")

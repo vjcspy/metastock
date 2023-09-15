@@ -3,10 +3,11 @@ from typing import Callable
 import pandas as pd
 
 from metastock.modules.com.schema.price_history_schema import priceHistorySchema
+from metastock.modules.core.util.pd.pd_to_datetime import pd_to_datetime
 
 
 class PriceHistoryDfHelper:
-    def __init__(self, data, skip_validate = False):
+    def __init__(self, data, skip_validate=False):
 
         if not skip_validate and isinstance(data, list) and len(data) > 0:
             priceHistorySchema.load(data[0])
@@ -20,12 +21,12 @@ class PriceHistoryDfHelper:
         """
         if self._df is None:
             df = pd.DataFrame(self._data)
-            self._df = df.sort_values(by = 'date', ascending = False)
-            self._df['date'] = pd.to_datetime(df['date'])
-            self._df.set_index('date', inplace = True)
+            self._df = df.sort_values(by='date', ascending=False)
+            self._df['date'] = pd_to_datetime(df['date'])
+            self._df.set_index('date', inplace=True)
             # self._df.reset_index(drop = True, inplace = True)
 
-        return self._df.copy(deep = True)
+        return self._df.copy(deep=True)
 
     def create_source_series(
             self,
@@ -47,6 +48,6 @@ class PriceHistoryDfHelper:
         df = self.get_df()
 
         # Áp dụng function để tính toán giá trị
-        result_series = df.apply(value_func, axis = 1)
+        result_series = df.apply(value_func, axis=1)
 
         return result_series

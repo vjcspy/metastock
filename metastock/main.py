@@ -21,6 +21,7 @@ logger = Logger()
 
 console = Console()
 
+# _______________ BOOTSTRAP _______________
 dump_env()
 init_trading_strategy_config()
 init_queue_config()
@@ -32,7 +33,7 @@ def _introduce():
 
 def _test_progress():
     total = 0
-    for value in track(range(100), description = "Processing..."):
+    for value in track(range(100), description="Processing..."):
         # Fake processing time
         time.sleep(0.05)
         total += 1
@@ -47,8 +48,8 @@ def callback():
     """
 
 
-@app.command(name = 'queue:consumer:start')
-def queue_consumer_start(name: Annotated[str, typer.Argument(help = "Name of consumer.")]):
+@app.command(name='queue:consumer:start')
+def queue_consumer_start(name: Annotated[str, typer.Argument(help="Name of consumer.")]):
     """
     Start rabbitmq consumer
     """
@@ -61,20 +62,23 @@ def queue_consumer_start(name: Annotated[str, typer.Argument(help = "Name of con
         consumer.run()
 
 
-@app.command(name = 'strategy:generator:predefine')
-def strategy_generator_predefine(input: Annotated[str, typer.Argument(help = "Input file.")]):
+@app.command(name='strategy:generator:predefine')
+def strategy_generator_predefine(input: Annotated[str, typer.Argument(help="Input file.")]):
     """
     Use Predefined strategy for generate process
     """
     _introduce()
     try:
+        if "/" not in input:
+            input = f"fixture/trade/predefined_inputs/generator/{input}"
+
         generator = PredefinedStrategyGenerator(
-                predefined_input = input
+            predefined_input=input
         )
 
         generator.generate()
     except Exception as e:
-        Logger().error("An error occurred: %s", e, exc_info = True)
+        Logger().error("An error occurred: %s", e, exc_info=True)
 
 
 @app.command()
