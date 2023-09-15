@@ -1,8 +1,5 @@
-from time import sleep
-
 from metastock.modules.core.logging.logger import Logger
 from metastock.modules.core.util.datetime.check_recent_date import check_recent_date
-from metastock.modules.core.util.datetime.get_current_date import get_current_date_string
 from metastock.modules.core.util.write_to_file import write_to_file
 from metastock.modules.trade.strategy.actions.action_abstract import ActionAbstract
 from metastock.modules.trade.strategy.signals.output_schema import SIGNAL_OUTPUT_SCHEMA_V1_NAME

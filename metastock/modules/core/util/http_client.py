@@ -7,7 +7,7 @@ class HttpClient:
     instance = None
 
     @staticmethod
-    def get(url, config = None):
+    def get(url, config=None):
         if config is None:
             config = {}
         response = requests.get(url)
@@ -16,7 +16,13 @@ class HttpClient:
 
     @staticmethod
     def post(url, data: dict, config: dict = None):
-        response = requests.post(url, json = data)
+        response = requests.post(url, json=data)
+        # response.raise_for_status()
+        return response
+
+    @staticmethod
+    def patch(url, data: dict, config: dict = None):
+        response = requests.patch(url, json=data)
         # response.raise_for_status()
         return response
 

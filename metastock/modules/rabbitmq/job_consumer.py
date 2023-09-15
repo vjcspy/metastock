@@ -1,5 +1,4 @@
 from abc import ABC
-from typing import Type
 
 from marshmallow import ValidationError
 
@@ -17,11 +16,11 @@ class JobConsumer(RabbitMQConsumer, ABC):
             queue: str,
             routing_key: str,
             workers: list[JobWorker],
-            connection = 'default'
+            connection='default'
     ):
         self.workers = workers
         self.name = name
-        super().__init__(exchange = exchange, queue = queue, routing_key = routing_key, connection = connection)
+        super().__init__(exchange=exchange, queue=queue, routing_key=routing_key, connection=connection)
 
     def get_name(self):
         return self.name
@@ -38,15 +37,15 @@ class JobConsumer(RabbitMQConsumer, ABC):
             else:
                 Logger().warning(f"Not found any worker can consume job {job_id}")
 
-            ch.basic_ack(delivery_tag = method.delivery_tag)
+            ch.basic_ack(delivery_tag=method.delivery_tag)
             Logger().info("Message acknowledged.")
 
         except ValidationError as e:
-            Logger().error("Error validate request body: %s", e, exc_info = True)
-            ch.basic_nack(delivery_tag = method.delivery_tag, requeue = False)
+            Logger().error("Error validate request body: %s", e, exc_info=True)
+            ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
         except Exception as e:
-            Logger().error("Error: %s", e, exc_info = True)
+            Logger().error("Error: %s", e, exc_info=True)
 
             # Negative Acknowledge the message
-            ch.basic_nack(delivery_tag = method.delivery_tag, requeue = True)
-            Logger().warning("Message not acknowledged, re-queued.")
+            ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
+            Logger().warning("Message NOT acknowledged")

@@ -51,3 +51,10 @@ class PriceHistoryDfHelper:
         result_series = df.apply(value_func, axis=1)
 
         return result_series
+
+    def get_df_after_date(self, date: str):
+        df = self.get_df()
+        input_date = pd_to_datetime(date)  # Chuyển đổi input sang datetime
+        filtered_df = df[df.index >= input_date]
+
+        return filtered_df

@@ -1,4 +1,5 @@
 import logging
+import os
 
 from rich.logging import RichHandler
 
@@ -19,7 +20,7 @@ def Logger(name: str = "root") -> AppLogger:
         return cached
     else:
         _logger = AppLogger(name)
-        _logger.setLevel(level = logging.DEBUG)
+        _logger.setLevel(level=logging.DEBUG)
 
         # Old
         # ch = logging.StreamHandler()
@@ -30,12 +31,21 @@ def Logger(name: str = "root") -> AppLogger:
 
         # Tạo một RichHandler để định dạng thông báo log
         handler = RichHandler(
-                rich_tracebacks = True if is_development() else False,
-                markup = True,
-                # console = console.Console(highlight = True)
+            rich_tracebacks=True if is_development() else False,
+            markup=True,
+            # console = console.Console(highlight = True)
         )
         handler.setFormatter(RichFormatter())
         _logger.addHandler(handler)
+
+        # File logger tạm thời cho error
+        if not os.path.exists('logs'):
+            os.makedirs('logs')
+        file_handler = logging.FileHandler('logs/error_logs.log')
+        file_handler.setLevel(logging.ERROR)
+        formatter = logging.Formatter("%(asctime)s %(levelname)s %(filename)s:%(lineno)d - %(message)s")
+        file_handler.setFormatter(formatter)
+        _logger.addHandler(file_handler)
 
         _log_instances[name] = _logger
         return _log_instances[name]

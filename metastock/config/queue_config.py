@@ -5,23 +5,33 @@ from metastock.modules.test.consumer.test_consumer import TestConsumer
 from metastock.modules.test.consumer.test_job_worker1 import TestJobWorker1
 from metastock.modules.test.consumer.test_job_worker2 import TestJobWorker2
 from metastock.modules.trade.consumer.strategy_consumer import StrategyConsumer
+from metastock.modules.trade.consumer.workers.analysis_worker import StockTradingAnalysisWorker
 
 
 @run_once
 def init_queue_config():
     consumer_manager().add_consumer(
-            [
-                    TestConsumer(),
-                    StrategyConsumer(),
-                    JobConsumer(
-                            name = 'test_job_consumer',
-                            exchange = 'testbed.exchange',
-                            queue = 'testbed.python.job.consumer.queue',
-                            routing_key = 'testbed.python.job.consumer.key',
-                            workers = [
-                                    TestJobWorker1(),
-                                    TestJobWorker2()
-                            ]
-                    )
-            ]
+        [
+            TestConsumer(),
+            StrategyConsumer(),
+            JobConsumer(
+                name='test_job_consumer',
+                exchange='testbed.exchange',
+                queue='testbed.python.job.consumer.queue',
+                routing_key='testbed.python.job.consumer.key',
+                workers=[
+                    TestJobWorker1(),
+                    TestJobWorker2()
+                ]
+            ),
+            JobConsumer(
+                name='stock_trading_consumer',
+                exchange='stock.trading.exchange',
+                queue='stock.trading.job.queue',
+                routing_key='stock.trading.job.queue.key',
+                workers=[
+                    StockTradingAnalysisWorker()
+                ]
+            )
+        ]
     )

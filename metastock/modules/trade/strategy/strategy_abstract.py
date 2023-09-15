@@ -5,6 +5,7 @@ from jsonschema.validators import validate
 from metastock.modules.core.logging.logger import Logger
 from metastock.modules.core.util.find_common_elements import find_common_elements
 from metastock.modules.core.util.http_client import http_client
+from metastock.modules.stockinfo.ulti.get_price_history import get_price_history
 from metastock.modules.trade.error import (
     ActionAndSignalNotMatch, CouldNotExecuteStrategy,
     NotSupportConfigType,
@@ -155,27 +156,8 @@ class StrategyAbstract(ABC):
         Load price history base on date from input config
         """
 
-        url = f"{TradeUrlValue.STOCK_PRICE_HISTORY_URL}?code={self.symbol}"
-        # url = f"{TradeUrlValue.STOCK_PRICE_HISTORY_URL}?code={'VCB'}"
-        url = f"{url}&from={self.from_date}&to={self.to_date}"
-
-        client = http_client()
-
         try:
-            Logger().info(f"Will send to API server to get history price {url}")
-
-            res = client.get(url)
-            if res.status_code != 200:
-                raise CouldNotExecuteStrategy("Due to error get price history data")
-
-            _json = res.json()
-            if not isinstance(_json, list) or len(_json) == 0:
-                raise CouldNotExecuteStrategy(f"Due to price history is EMPTY {self.symbol}")
-
-            price_sorted = sorted(_json, key=lambda x: x['date'], reverse=True)
-            Logger().ok(f"get price history for {self.symbol}")
-            self.price_history = price_sorted
-
+            self.price_history = get_price_history(symbol=self.symbol, from_date=self.from_date, to_date=self.to_date)
         except Exception as e:
             Logger().error(
                 "An error occurred when send to downstream: %s",
