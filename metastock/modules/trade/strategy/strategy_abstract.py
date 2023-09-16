@@ -1,10 +1,9 @@
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 
 from jsonschema.validators import validate
 
 from metastock.modules.core.logging.logger import Logger
 from metastock.modules.core.util.find_common_elements import find_common_elements
-from metastock.modules.core.util.http_client import http_client
 from metastock.modules.stockinfo.ulti.get_price_history import get_price_history
 from metastock.modules.trade.error import (
     ActionAndSignalNotMatch, CouldNotExecuteStrategy,
@@ -16,7 +15,6 @@ from metastock.modules.trade.strategy.actions.action_manager import action_manag
 from metastock.modules.trade.strategy.filters.filter_manager import filter_manager
 from metastock.modules.trade.strategy.input_schema import STRATEGY_INPUT_SCHEMA_V1, STRATEGY_INPUT_SCHEMA_V1_NAME
 from metastock.modules.trade.strategy.signals.signal_manager import signal_manager
-from metastock.modules.trade.value.url import TradeUrlValue
 
 
 class StrategyAbstract(ABC):
@@ -26,6 +24,7 @@ class StrategyAbstract(ABC):
     name = None
 
     def __init__(self):
+        self._is_loaded_filter = False
         self.to_date = None
         self.from_date = None
         self.input_config = None
@@ -94,6 +93,9 @@ class StrategyAbstract(ABC):
         self._load_actions(_action_config['actions'], _action_config['input'])
 
     def _load_filters(self, filters: list[str], filter_input):
+        if self._is_loaded_filter is True:
+            return
+
         for filter_class_name in filters:
             filter_class = filter_manager().get_class(filter_class_name)
 
@@ -107,6 +109,16 @@ class StrategyAbstract(ABC):
             filter_instance.set_strategy(self)
 
             self.filters.append(filter_instance)
+
+        self._is_loaded_filter = True
+
+    def get_allowable_list(self):
+        _list = []
+        for _filter in self.filters:
+            _list.append(_filter.get_allowable_list())
+
+        return find_common_elements(*_list)
+
 
     def _load_signals(self, signals: list[str], signal_input):
         for signal_class_name in signals:
@@ -145,7 +157,7 @@ class StrategyAbstract(ABC):
 
                 if len(find_common_elements(signal_outputs, action_supports)) == 0:
                     raise ActionAndSignalNotMatch(
-                        f"Action '{action.get_name()}' not match with any output of signal '{signal.get_name()}'"
+                            f"Action '{action.get_name()}' not match with any output of signal '{signal.get_name()}'"
                     )
 
     def execute(self):
@@ -160,8 +172,8 @@ class StrategyAbstract(ABC):
             self.price_history = get_price_history(symbol=self.symbol, from_date=self.from_date, to_date=self.to_date)
         except Exception as e:
             Logger().error(
-                "An error occurred when send to downstream: %s",
-                e,
+                    "An error occurred when send to downstream: %s",
+                    e,
             )
 
             raise CouldNotExecuteStrategy(f"Due to error get price history data {self.symbol}")

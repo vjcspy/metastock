@@ -80,13 +80,6 @@ class PredefinedStrategyGenerator(StrategyGeneratorAbstract):
                 data = json.load(file)
                 _input_configs.append({"file": _file, "data": data})
 
-        # Simulate load input for validation, we want all inputs is valid before send it to api server to create job
-        self.logger.info("Will simulate load strategy and it's signal and action for validate input")
-        for _input_config in _input_configs:
-            self.strategy: StrategyAbstract = self.strategy_class()
-            self.strategy.load_input(input_config = _input_config["data"])
-            self.logger.info(f"OK validate input for strategy [blue]{_input_config['data']['name']}[/blue]")
-
         return _input_configs
 
     def generate(self):
@@ -106,20 +99,31 @@ class PredefinedStrategyGenerator(StrategyGeneratorAbstract):
             self.logger.info(
                     f"Process strategy '{self.strategy_name}' with input name '{config.get('data').get('name')}'"
             )
+            self.logger.info(f"Will simulate load strategy '{self.strategy_name}' for validate input")
+            strategy: StrategyAbstract = self.strategy_class()
+            strategy.load_input(input_config=config["data"])
+            self.logger.ok(f"validate input for strategy [blue]{config['data']['name']}[/blue]")
+
             strategy_input = config['data']['input']
             from_date, to_date = self._get_range_data(strategy_input["range"])
             hash_key = get_strategy_hash(
-                    strategy_name = self.strategy_name,
-                    strategy_input = config['data'],
-                    from_date = from_date,
-                    to_date = to_date
+                    strategy_name=self.strategy_name,
+                    strategy_input=config['data'],
+                    from_date=from_date,
+                    to_date=to_date
             )
+            
+            meta = {
+                "allowable_list": strategy.get_allowable_list()
+            }
+
             data = {
-                    "strategy_name": self.strategy_name,
-                    "from_date": from_date,
-                    "to_date": to_date,
-                    "strategy_input": config['data'],
-                    "hash_key": hash_key
+                "strategy_name" : self.strategy_name,
+                "from_date"     : from_date,
+                "to_date"       : to_date,
+                "strategy_input": config['data'],
+                "hash_key"      : hash_key,
+                "meta"          : meta
             }
 
             try:

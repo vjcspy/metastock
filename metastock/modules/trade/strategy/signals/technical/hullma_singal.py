@@ -1,11 +1,9 @@
-import pandas as pd
-
 from metastock.modules.com.technical_indicator.hullma import Hullma, HullmaConfig
 from metastock.modules.core.logging.logger import Logger
 from metastock.modules.core.util.pd.pd_to_datetime import pd_to_datetime
 from metastock.modules.trade.strategy.signals.output_schema import SIGNAL_OUTPUT_SCHEMA_V1_NAME
 from metastock.modules.trade.strategy.signals.signal_abstract import SignalAbstract
-from metastock.modules.trade.util.predict_trend_change import predict_trend_change, predict_trend_change_v1
+from metastock.modules.trade.util.predict_trend_change import predict_trend_change_v1
 
 
 class HullmaSignal(SignalAbstract):
@@ -50,9 +48,9 @@ class HullmaSignal(SignalAbstract):
 
             desired_date = pd_to_datetime(date)
             day_signal = {
-                "date": date,
-                "buy": {},
-                "sell": {},
+                "date" : date,
+                "buy"  : {},
+                "sell" : {},
                 "alert": {
                     "notify": False
                 }
@@ -65,17 +63,19 @@ class HullmaSignal(SignalAbstract):
 
                 if predict_trend_day:
                     day_signal["alert"] = {
-                        "notify": True,
+                        "notify" : True,
                         "message": f"{symbol}: Detect hullma change next day {date} with trend {predict_trend_type} config length {hullma_config.length}"
                     }
                 elif predict_trend_current_day == 0:
                     day_signal["alert"] = {
-                        "notify": True,
+                        "notify" : True,
                         "message": f"{symbol}: Detect hullma change current day {date} with trend {predict_trend_type} config length {hullma_config.length}"
                     }
             except Exception as e:
-                Logger().error("An error occurred when get predict trend for date {desired_date}: %s", e,
-                               exc_info=False)
+                # Logger().warning(
+                #     "An error occurred when get predict trend for date {desired_date}: %s", e,
+                #     exc_info=False
+                #     )
                 pass
 
             results.append(day_signal)

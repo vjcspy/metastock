@@ -13,8 +13,7 @@
     },
     "filter": {
       "filters": [
-        "capitalization_filter",
-        "specific_symbols_filter"
+        "total_trade_value_filter"
       ],
       "input": {
         "api": "@filter/input/v1",
@@ -23,6 +22,9 @@
             "symbols": [
               "BFC"
             ]
+          },
+          "total_trade_value_filter": {
+            "top": 50
           }
         }
       }

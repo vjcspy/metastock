@@ -54,3 +54,8 @@ class CouldNotResolveUrlConfig(AppError):
 class JobConsumerPayloadDataError(AppError):
     def __init__(self, message="missing or wrong payload data", code='trade_strategy_error_000'):
         super().__init__(message, code)
+
+
+class StockTradingAnalysisNotFound(AppError):
+    def __init__(self, message="Stock trading analysis not yet initialized", code='trade_strategy_error_000'):
+        super().__init__(message, code)
