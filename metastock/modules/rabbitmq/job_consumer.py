@@ -1,4 +1,5 @@
 from abc import ABC
+from typing import Type
 
 from marshmallow import ValidationError
 
@@ -15,7 +16,7 @@ class JobConsumer(RabbitMQConsumer, ABC):
             exchange: str,
             queue: str,
             routing_key: str,
-            workers: list[JobWorker],
+            workers: list[Type[JobWorker]],
             connection='default'
     ):
         self.workers = workers
@@ -30,9 +31,11 @@ class JobConsumer(RabbitMQConsumer, ABC):
         try:
             data = job_consumer_body_schema.loads(body.decode("utf-8"))
             job_id = data.get('job_id')
-            worker: JobWorker = next(filter(lambda w: w.job_id() == job_id, self.workers), None)
+            worker_class: Type[JobWorker] = next(filter(lambda w: w.job_id == job_id, self.workers), None)
 
-            if worker:
+            if worker_class:
+                # Make sure new instance of worker is created when receiving new message
+                worker = worker_class()
                 worker.handle(ch, method, properties, body)
             else:
                 Logger().warning(f"Not found any worker can consume job {job_id}")

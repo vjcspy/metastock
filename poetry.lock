@@ -1046,6 +1046,17 @@ files = [
 cli = ["click (>=5.0)"]
 
 [[package]]
+name = "python-json-logger"
+version = "2.0.7"
+description = "A python library adding a json log formatter"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "python-json-logger-2.0.7.tar.gz", hash = "sha256:23e7ec02d34237c5aa1e29a070193a4ea87583bb4e7f8fd06d3de8264c4b2e1c"},
+    {file = "python_json_logger-2.0.7-py3-none-any.whl", hash = "sha256:f380b826a991ebbe3de4d897aeec42760035ac760345e57b812938dc8b35e2bd"},
+]
+
+[[package]]
 name = "pytz"
 version = "2023.3"
 description = "World timezone definitions, modern and historical"
@@ -1344,6 +1355,20 @@ files = [
 ]
 
 [[package]]
+name = "splunk-handler"
+version = "3.0.0"
+description = "A Python logging handler that sends your logs to Splunk"
+optional = false
+python-versions = "*"
+files = [
+    {file = "splunk_handler-3.0.0-py2.py3-none-any.whl", hash = "sha256:76e85ee70c6ca00c6d8be1f64715653fc00af3c97853b70d91e156704dbc8486"},
+    {file = "splunk_handler-3.0.0.tar.gz", hash = "sha256:a835b0a7161148aceb977301c6dba21bb96e7635279c7e90e0216c78a4bcbb24"},
+]
+
+[package.dependencies]
+requests = ">=2.6.0,<3.0.0"
+
+[[package]]
 name = "termcolor"
 version = "2.3.0"
 description = "ANSI color formatting for output in terminal"
@@ -1420,4 +1445,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "9d105ca3dab3f477b35d984d8d9b877df0a41a9cc3e1458dfa0fa97f939fa3ac"
+content-hash = "fc85701b1f01baf456f0a91237688f259279dc94b25bc186b4fe3bff7fb20300"

@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from metastock.modules.com.helper.price_history_df_helper import PriceHistoryDfHelper
 from metastock.modules.com.technical_indicator.technical_indicator_abstract import TechnicalIndicatorAbstract
+from metastock.modules.com.util.avg import avg
 from metastock.modules.com.util.price.wma import wma
 
 
@@ -11,7 +11,7 @@ class HullmaConfig:
 
     def __init__(
             self, length=16,
-            cal_source_func=lambda row: row['close']
+            cal_source_func=lambda row: avg(row['close'], row['close'], row['open'], row['high'], row['low'])
     ):
         self.length = length
         self.cal_source_func = cal_source_func
@@ -37,7 +37,7 @@ class Hullma(TechnicalIndicatorAbstract):
         if _cache_key is not None and self._cache.get(_cache_key) is None:
             source = price_helper.create_source_series(value_func=config.cal_source_func)
             hulma = wma(2 * wma(source, int(length / 2)) - wma(source, length), round(np.sqrt(length)))
-            self._cache[_cache_key] = hulma
+            self._cache[_cache_key] = hulma.round()
 
         return self._cache.get(self._get_cache_key(length))
 

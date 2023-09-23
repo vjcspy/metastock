@@ -10,7 +10,6 @@ from metastock.config.app_config import APP_VERSION
 from metastock.config.queue_config import init_queue_config
 from metastock.config.trading_config import init_trading_strategy_config
 from metastock.modules.core.logging.logger import Logger
-from metastock.modules.core.util.environment import dump_env
 from metastock.modules.rabbitmq.connection_manager import rabbitmq_manager
 from metastock.modules.rabbitmq.consumer_manager import consumer_manager
 from metastock.modules.trade.generator.predefined_strategy_generator import PredefinedStrategyGenerator
@@ -22,7 +21,6 @@ logger = Logger()
 console = Console()
 
 # _______________ BOOTSTRAP _______________
-dump_env()
 init_trading_strategy_config()
 init_queue_config()
 
@@ -73,7 +71,7 @@ def strategy_generator_predefine(input: Annotated[str, typer.Argument(help="Inpu
             input = f"fixture/trade/predefined_inputs/generator/{input}"
 
         generator = PredefinedStrategyGenerator(
-            predefined_input=input
+                predefined_input=input
         )
 
         generator.generate()

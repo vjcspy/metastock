@@ -2,9 +2,8 @@ from abc import ABC, abstractmethod, abstractproperty
 
 
 class JobWorker(ABC):
-    @abstractmethod
-    def job_id(self):
-        pass
+
+    job_id = ''
 
     @abstractmethod
     def handle(self, ch, method, properties, body):

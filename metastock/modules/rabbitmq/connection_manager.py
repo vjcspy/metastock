@@ -27,12 +27,12 @@ class RabbitMQConnectionManager:
 
         if host and port and username and password:
             Logger().info("Initializing the default RabbitMQ connection...")
-            connection = RabbitMQConnection(host = host, port = port, username = username, password = password)
+            connection = RabbitMQConnection(host=host, port=port, username=username, password=password)
             connection.connect()
 
             self._connections['default'] = connection
 
-    def get_connection(self, name = 'default'):
+    def get_connection(self, name='default'):
         connection_instance: RabbitMQConnection = self._connections.get(name)
 
         return connection_instance

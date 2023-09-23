@@ -20,24 +20,25 @@ def env() -> Environment:
 
 
 def is_development() -> bool:
-    return env().get('PS_ENVIRONMENT') == 'development' or env().get('ENVIRONMENT') == 'development'
+    return env().get('PS_ENVIRONMENT') in ['development', 'local'] or env().get('ENVIRONMENT') == 'development'
 
 
-# Xác định môi trường hiện tại ("development" hoặc "production")
 current_env = os.environ.get('ENVIRONMENT')
 if current_env == 'development':
+    load_dotenv('.env.local')
     load_dotenv('.env.development')
 elif current_env == 'production':
     load_dotenv('.env.production')
 else:
+    load_dotenv('.env.local')
     load_dotenv('.env.development')
 
 
 def dump_env():
-    table = Table(title = "Environment")
+    table = Table(title="Environment")
 
-    table.add_column("Key", justify = "left", style = "cyan", no_wrap = True)
-    table.add_column("Value", style = "magenta")
+    table.add_column("Key", justify="left", style="cyan", no_wrap=True)
+    table.add_column("Value", style="magenta")
 
     for key, value in os.environ.items():
         # Kiểm tra nếu tên biến môi trường bắt đầu bằng PS_
@@ -45,4 +46,4 @@ def dump_env():
             table.add_row(key, value)
 
     console = Console()
-    console.print(table, justify = "center")
+    console.print(table, justify="center")

@@ -6,18 +6,19 @@ from metastock.modules.core.util.http_client import http_client
 from metastock.modules.rabbitmq.job_worker import JobWorker
 from metastock.modules.rabbitmq.schema import job_consumer_body_schema
 from metastock.modules.stockinfo.ulti.get_price_history import get_price_history
+from metastock.modules.trade.analysis.hullma import StockTradingAnalysisHullma
 from metastock.modules.trade.analysis.total_trade_value import StockTradingAnalysisTotalTradeValue
 from metastock.modules.trade.error import JobConsumerPayloadDataError
 from metastock.modules.trade.value.url import TradeUrlValue
 
 
 class StockTradingAnalysisWorker(JobWorker):
+    job_id = 'stock_trading_analysis'
+
     def __init__(self):
         self._symbol = None
         self._price_helper = None
 
-    def job_id(self):
-        return "stock_trading_analysis"
 
     def handle(self, ch, method, properties, body):
         Logger().info("Process stock trading analysis")
@@ -39,16 +40,21 @@ class StockTradingAnalysisWorker(JobWorker):
         )
         total_trade_data = total_trade_analysis.get_data()
 
+        hullma_analysis = StockTradingAnalysisHullma(symbol=self.get_symbol(), price_history=price_history)
+        hullma_analysis_data = hullma_analysis.get_data()
+
         # save to downstream
         self._save_data_to_api(
                 {
                     "symbol": self.get_symbol(),
-                    **total_trade_data
+                    **total_trade_data,
+                    **hullma_analysis_data
                 }
         )
 
     def _save_data_to_api(self, data: dict):
         Logger().info(f"Will save analysis data to downstream for '{self.get_symbol()}'")
+        Logger().debug(f"Analysis data of '{self.get_symbol()}' {data}")
         client = http_client()
         res = client.patch(TradeUrlValue.STOCK_TRADING_ANALYSIS_URL, data)
 
