@@ -1,14 +1,15 @@
+import time
 from typing import Annotated
 
 import typer
-from rich.progress import track
-import time
-from termcolor import colored
 from rich.console import Console
+from rich.progress import track
+from termcolor import colored
 
 from metastock.config.app_config import APP_VERSION
 from metastock.config.queue_config import init_queue_config
 from metastock.config.trading_config import init_trading_strategy_config
+from metastock.http import http
 from metastock.modules.core.logging.logger import Logger
 from metastock.modules.rabbitmq.connection_manager import rabbitmq_manager
 from metastock.modules.rabbitmq.consumer_manager import consumer_manager
@@ -19,6 +20,7 @@ app = typer.Typer()
 logger = Logger()
 
 console = Console()
+http
 
 # _______________ BOOTSTRAP _______________
 init_trading_strategy_config()

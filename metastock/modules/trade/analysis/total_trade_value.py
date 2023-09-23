@@ -16,17 +16,16 @@ class StockTradingAnalysisTotalTradeValue:
         trade_value_30 = self._calculate_trade_value(30)
 
         return {
-            "trade_value_7": trade_value_7,
+            "trade_value_7" : trade_value_7,
             "trade_value_14": trade_value_14,
             "trade_value_30": trade_value_30,
         }
 
     def _calculate_trade_value(self, day_before: int):
         Logger().info(f"Will calculate trade value for '{self.get_symbol()}' in {day_before} days")
-        date_7_days_before = arrow.utcnow().shift(days=-day_before).format('YYYY-MM-DD')
-        df = self._get_price_history_helper(price_history=self._price_history).get_df_after_date(date_7_days_before)
+        df = self._get_price_history_helper(price_history=self._price_history).get_df().head(day_before)
 
-        return round(df['value'].sum() / 10 ** 9, 0)
+        return round(df['value'].sum() / (day_before * 10 ** 9), 0)
 
     def _get_price_history_helper(self, price_history) -> PriceHistoryDfHelper:
         if self._price_helper is None:
