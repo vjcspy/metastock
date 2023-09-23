@@ -4,6 +4,7 @@ services:
     image: vjcspy/metastock-http:latest
     container_name: metastock-http
     init: true
+    restart: always
     ports:
       - "3002:3002"
     environment:

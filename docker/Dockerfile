@@ -1,6 +1,7 @@
 FROM python:latest
 
 RUN pip install gunicorn
+RUN pip install metastock
 
 COPY start.sh /start.sh
 
