@@ -1,5 +1,8 @@
 .PHONY: test
 
+flask:
+	@poetry run python -m flask --app metastock/http.py run
+
 test:
 	@poetry run python -m pytest
 
