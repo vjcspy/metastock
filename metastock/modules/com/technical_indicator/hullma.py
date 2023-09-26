@@ -20,11 +20,10 @@ class HullmaConfig:
 class Hullma(TechnicalIndicatorAbstract):
     _cache = {}
 
-    def __init__(self, history: list, symbol: str = None):
-        super().__init__(history)
+    def __init__(self, symbol: str = None, history: list = None):
+        super().__init__(history, symbol)
 
         # default config
-        self._symbol = symbol
         self._config = HullmaConfig()
         self._cache = {}
 

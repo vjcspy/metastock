@@ -30,15 +30,8 @@ def Logger(name: str = "root") -> AppLogger:
         # ch.setFormatter(CustomFormatter())
         # _logger.addHandler(ch)
 
-        # Tạo một RichHandler để định dạng thông báo log
-        handler = RichHandler(
-                rich_tracebacks=True if is_development() else False,
-                markup=True,
-                # console = console.Console(highlight = True)
-        )
-
-        handler.setFormatter(RichFormatter())
-        _logger.addHandler(handler)
+        rich_handler = get_rich_logger_handler()
+        _logger.addHandler(rich_handler)
 
         # File logger tạm thời cho error
         if not os.path.exists('logs'):
@@ -86,3 +79,16 @@ def Logger(name: str = "root") -> AppLogger:
 
         _log_instances[name] = _logger
         return _log_instances[name]
+
+
+def get_rich_logger_handler():
+    # Tạo một RichHandler để định dạng thông báo log
+    handler = RichHandler(
+            rich_tracebacks=True if is_development() else False,
+            markup=True,
+            # console = console.Console(highlight = True)
+    )
+
+    handler.setFormatter(RichFormatter())
+
+    return handler

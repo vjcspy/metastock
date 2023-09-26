@@ -1,20 +1,22 @@
 from flask import Flask, g, jsonify
+from flask_cors import CORS
 
-BLUEPRINTS = []
+from metastock.flaskr.stock_trading import stock_trading
+from metastock.modules.core.logging.logger import Logger
 
 
-def create_app(config=None, app_name="metastock", blueprints=None):
+BLUEPRINTS = [
+    stock_trading
+]
+
+
+def create_app(app_name="metastock"):
     app = Flask(app_name)
+    CORS(app)
+    app.config.from_prefixed_env(prefix="FLASK")
+    configure_logging(app)
 
-    app.config.from_prefixed_env(prefix="PS")
-    app.config.from_pyfile("../local.cfg", silent=True)
-    if config:
-        app.config.from_pyfile(config)
-
-    if blueprints is None:
-        blueprints = BLUEPRINTS
-
-    blueprints_fabrics(app, blueprints)
+    blueprints_fabrics(app, BLUEPRINTS)
     extensions_fabrics(app)
 
     error_pages(app)
@@ -58,8 +60,12 @@ def error_pages(app):
     def method_not_allowed(error):
         return jsonify(
                 {"error": "Method Not Allowed", "message": "The method specified in the request is not allowed"}
-                ), 405
+        ), 405
 
     @app.errorhandler(500)
     def server_error_page(error):
         return jsonify({"error": "Internal Server Error", "message": "An internal server error occurred"}), 500
+
+
+def configure_logging(app):
+    app.logger = Logger('flask_logger')

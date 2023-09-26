@@ -7,8 +7,15 @@ from metastock.modules.stockinfo.value.url import STOCK_PRICE_HISTORY_URL
 
 
 def get_price_history(
-        symbol: str, from_date: str, to_date: str = arrow.utcnow().format('YYYY-MM-DD'), raise_empty_exception=True
+        symbol: str,
+        from_date: str = None,
+        to_date: str = arrow.utcnow().format('YYYY-MM-DD'),
+        raise_empty_exception=True
 ):
+    if from_date is None:
+        current_date = arrow.now()
+        from_date = current_date.shift(months=-6).format('YYYY-MM-DD')
+
     url = f"{STOCK_PRICE_HISTORY_URL}?code={symbol}&from={from_date}&to={to_date}"
 
     client = http_client()

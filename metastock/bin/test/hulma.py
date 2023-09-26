@@ -8,7 +8,7 @@ from metastock.modules.trade.util.predict_trend_change import predict_trend_chan
 def calculate_hullma(n: int = 80):
     history_data = get_history_data(symbol='VHC')
 
-    hullma = Hullma(history=history_data)
+    hullma = Hullma(history=history_data, symbol='VHC')
     hulma_data = hullma.get_data().head(n)
 
     return hulma_data

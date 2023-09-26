@@ -97,10 +97,10 @@ class StockTradingAnalysisHullma:
     def _get_price_history(self):
         if self._price_history is None:
             current_date = arrow.now()
-            last_2_year_date_str = current_date.shift(months=-6).format('YYYY-MM-DD')
+            from_date = current_date.shift(months=-6).format('YYYY-MM-DD')
 
             self._price_history = get_price_history(
-                    symbol=self.symbol, from_date=last_2_year_date_str, to_date=current_date.format('YYYY-MM-DD')
+                    symbol=self.symbol, from_date=from_date, to_date=current_date.format('YYYY-MM-DD')
             )
 
         return self._price_history
