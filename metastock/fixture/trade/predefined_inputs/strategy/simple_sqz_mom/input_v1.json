@@ -44,7 +44,8 @@
         "api": "@action/input/v1",
         "input": {
           "buy": {},
-          "sell": {}
+          "sell": {},
+          "alert": {}
         }
       }
     }

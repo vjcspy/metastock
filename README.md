@@ -39,6 +39,20 @@ Ex:
 pm2 start metastock/start_consumer.py --log-date-format '' --interpreter=/home/wsl/.cache/pypoetry/virtualenvs/metastock-bq6tFdVW-py3.11/bin/python --instances 4 --max-memory-restart 1G -- --name=test_consumer
 ```
 
+
+
+## Publish app
+
+1. Increase version in `pyproject.toml`
+
+2. Run publish command
+
+   ```bash
+   poetry publish --build
+   ```
+
+   
+
 ## Refer:
 
 - Create a package https://typer.tiangolo.com/tutorial/package/

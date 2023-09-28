@@ -1,16 +1,18 @@
+import time
 from typing import Annotated
 
 import typer
-from rich.panel import Panel
-from rich.progress import track
-import time
-from termcolor import colored
 from rich.console import Console
-from rich.text import Text
+from rich.progress import track
+from termcolor import colored
 
-from metastock.config.consumer_config import CONSUMERS
+from metastock.config.app_config import APP_VERSION
+from metastock.config.queue_config import init_queue_config
+from metastock.config.trading_config import init_trading_strategy_config
 from metastock.modules.core.logging.logger import Logger
 from metastock.modules.rabbitmq.connection_manager import rabbitmq_manager
+from metastock.modules.rabbitmq.consumer_manager import consumer_manager
+from metastock.modules.trade.generator.predefined_strategy_generator import PredefinedStrategyGenerator
 
 app = typer.Typer()
 
@@ -18,14 +20,18 @@ logger = Logger()
 
 console = Console()
 
+# _______________ BOOTSTRAP _______________
+init_trading_strategy_config()
+init_queue_config()
+
 
 def _introduce():
-    pass
+    Logger().info(f"App version: {APP_VERSION}")
 
 
 def _test_progress():
     total = 0
-    for value in track(range(100), description = "Processing..."):
+    for value in track(range(100), description="Processing..."):
         # Fake processing time
         time.sleep(0.05)
         total += 1
@@ -40,22 +46,37 @@ def callback():
     """
 
 
-@app.command(name = 'queue:consumer:start')
-def queue_consumer_start(name: Annotated[str, typer.Option(help = "Name of consumer.")]):
+@app.command(name='queue:consumer:start')
+def queue_consumer_start(name: Annotated[str, typer.Argument(help="Name of consumer.")]):
     """
     Start rabbitmq consumer
     """
     _introduce()
     rabbitmq_manager().initialize()
 
-    consumer = None
-
-    for consumer_class in CONSUMERS:
-        if consumer_class.name == name:
-            consumer = consumer_class()
+    consumer = consumer_manager().get_consumer(name)
 
     if consumer is not None:
         consumer.run()
+
+
+@app.command(name='strategy:generator:predefine')
+def strategy_generator_predefine(input: Annotated[str, typer.Argument(help="Input file.")]):
+    """
+    Use Predefined strategy for generate process
+    """
+    _introduce()
+    try:
+        if "/" not in input:
+            input = f"fixture/trade/predefined_inputs/generator/{input}"
+
+        generator = PredefinedStrategyGenerator(
+                predefined_input=input
+        )
+
+        generator.generate()
+    except Exception as e:
+        Logger().error("An error occurred: %s", e, exc_info=True)
 
 
 @app.command()

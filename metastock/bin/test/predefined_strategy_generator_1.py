@@ -4,7 +4,7 @@ import sys
 
 try:
     generator = PredefinedStrategyGenerator(
-        predefined_input="fixture/trade/predefined_inputs/generator/simple_sqz_mom_v1.json"
+        predefined_input="fixture/trade/predefined_inputs/generator/simple_alert_v1.json"
     )
 
     generator.generate()

@@ -4,7 +4,7 @@ from metastock.modules.core.logging.logger import Logger
 
 
 class RabbitMQConnection:
-    def __init__(self, host = 'localhost', port = 5672, username = 'guest', password = 'guest'):
+    def __init__(self, host='localhost', port=5672, username='guest', password='guest'):
         self.host = host
         self.port = port
         self.username = username
@@ -13,7 +13,7 @@ class RabbitMQConnection:
 
     def connect(self):
         credentials = pika.PlainCredentials(self.username, self.password)
-        parameters = pika.ConnectionParameters(host = self.host, port = self.port, credentials = credentials)
+        parameters = pika.ConnectionParameters(host=self.host, port=self.port, credentials=credentials)
         self.connection = pika.BlockingConnection(parameters)
 
         # Log connection successful

@@ -1,0 +1,23 @@
+version: '3'
+services:
+  splunk-license-server:
+    image: vjcspy/metastock-http:latest
+    container_name: metastock-http
+    init: true
+    restart: always
+    ports:
+      - "3002:3002"
+    environment:
+      ENVIRONMENT: "production"
+      PS_ENVIRONMENT: "production"
+      PS_API_END_POINT: "https://stock.bluestone.systems"
+      PS_API_SECRET_KEY: "xxx"
+      PS_RABBITMQ_DEFAULT_CONNECTION_HOST: "54.251.107.115"
+      PS_RABBITMQ_DEFAULT_CONNECTION_PORT: "5432"
+      PS_RABBITMQ_DEFAULT_CONNECTION_USERNAME: "rabbitmq"
+      PS_RABBITMQ_DEFAULT_CONNECTION_PASSWORD: "xxx"
+      PS_SPLUNK_ENABLE: "true"
+      PS_SPLUNK_TOKEN: "xxx"
+
+
+

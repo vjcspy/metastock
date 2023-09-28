@@ -1,26 +1,26 @@
-import pandas as pd
-from abc import ABC, abstractmethod
+from abc import ABC
 
-from metastock.modules.com.technical_indicator.error import DateNotSetError, ConfigNotSetError
-from metastock.modules.com.util.price_history_helper import PriceHistoryHelper
+import arrow
+
+from metastock.modules.com.helper.price_history_df_helper import PriceHistoryDfHelper
+from metastock.modules.com.technical_indicator.error import ConfigNotSetError, DateNotSetError
+from metastock.modules.stockinfo.ulti.get_price_history import get_price_history
 
 
 class TechnicalIndicatorAbstract(ABC):
-    _price_history_helper: PriceHistoryHelper
-    _config = None
+    _price_history_df_helper: PriceHistoryDfHelper | None
 
-    def __init__(self, history: list):
+    def __init__(self, history: list = None, symbol: str = None):
         self._date = None
+        self._price_history_df_helper = None
         self._history = history
-        self._price_history_helper = PriceHistoryHelper(history)
+        self._symbol = symbol
+        self._config = None
 
-    @abstractmethod
     def set_config(self, config):
-        pass
+        self._config = config
 
-    @abstractmethod
-    def validate_input(self) -> bool:
-        pass
+        return self
 
     def get_config(self):
         return self._config
@@ -33,8 +33,25 @@ class TechnicalIndicatorAbstract(ABC):
 
         return self
 
-    def get_price_history_helper(self):
-        return self._price_history_helper
+    def get_price_helper(self) -> PriceHistoryDfHelper:
+        if self._price_history_df_helper is None:
+            self._price_history_df_helper = PriceHistoryDfHelper(self.get_history())
+
+        return self._price_history_df_helper
+
+    def get_history(self):
+        if self._history is None:
+            current_date = arrow.now()
+            from_date = current_date.shift(months=-6).format('YYYY-MM-DD')
+
+            self._history = get_price_history(
+                    symbol=self.get_symbol(), from_date=from_date, to_date=current_date.format('YYYY-MM-DD')
+            )
+
+        return self._history
+
+    def get_symbol(self):
+        return self._symbol
 
     def get_data(self):
         if self._date is None:

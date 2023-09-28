@@ -1,29 +1,13 @@
 import pandas as pd
 from datetime import datetime
-from marshmallow import Schema, fields, validate
+
+from metastock.modules.com.schema.price_history_schema import priceHistorySchema
 from metastock.modules.core.util.df_get_row_by_column_value import df_get_row_by_column_value
+from metastock.modules.core.util.pd.pd_to_datetime import pd_to_datetime
 
 
 def average_price(row):
     return (row['high'] + row['low']) / 2
-
-
-class PriceHistorySchema(Schema):
-    date = fields.Date(required=True)
-    high = fields.Integer(required=True, validate=validate.Range(min=0))
-    low = fields.Integer(required=True, validate=validate.Range(min=0))
-    close = fields.Integer(required=True, validate=validate.Range(min=0))
-    open = fields.Integer(required=True, validate=validate.Range(min=0))
-    volume = fields.Integer(required=True, validate=validate.Range(min=0))
-    trade = fields.Integer(required=True, validate=validate.Range(min=0))
-    value = fields.Integer(required=True, validate=validate.Range(min=0))
-    buy = fields.Integer(required=True, validate=validate.Range(min=0))
-    buyQuantity = fields.Integer(required=True, validate=validate.Range(min=0))
-    sell = fields.Integer(required=True, validate=validate.Range(min=0))
-    sellQuantity = fields.Integer(required=True, validate=validate.Range(min=0))
-
-
-schema = PriceHistorySchema()
 
 
 class PriceHistoryHelper:
@@ -37,7 +21,7 @@ class PriceHistoryHelper:
     def __init__(self, data, skip_validate=False):
 
         if not skip_validate and isinstance(data, list) and len(data) > 0:
-            schema.load(data[0])
+            priceHistorySchema.load(data[0])
         self._data = data
         self._df = None
 
@@ -51,8 +35,8 @@ class PriceHistoryHelper:
 
     def _get_start_date(self, end_date, length):
         data_df = self._get_df()
-        end_date = pd.to_datetime(end_date)
-        data_df['date'] = pd.to_datetime(data_df['date'])
+        end_date = pd_to_datetime(end_date)
+        data_df['date'] = pd_to_datetime(data_df['date'])
         data_df = data_df[data_df['date'] <= end_date]
         data_df = data_df.head(length)
         start_date = data_df.iloc[-1]['date']
@@ -104,8 +88,8 @@ class PriceHistoryHelper:
         """
         df = self._get_df()
         date = self._date
-        df['date'] = pd.to_datetime(df['date'])
-        end_date = pd.to_datetime(date)
+        df['date'] = pd_to_datetime(df['date'])
+        end_date = pd_to_datetime(date)
         start_date = self._get_start_date(self._date, length)
 
         filtered_df = df[(df['date'] >= start_date) & (df['date'] <= end_date)]

@@ -1,4 +1,4 @@
 from .main import app
 
-app(prog_name = "pystock")
+app(prog_name="pystock")
 app()

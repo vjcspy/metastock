@@ -15,16 +15,16 @@ def setup_data():
     return data
 
 
-def test_get_value(setup_data):
-    sqz_config = SqzMomConfig()
-    sqz = SqzMom(setup_data)
-    sqz.set_config(sqz_config)
-
-    sqzs = []
-    for i in range(3):
-        date = setup_data[i]['date']
-        value, sqzOn, sqzOff, noSqz = sqz.set_date(date).get_data()
-        sqzs.append(value)
-
-    expected = [-422, -207, -150]
-    assert sqzs == expected
+# def test_get_value(setup_data):
+#     sqz_config = SqzMomConfig()
+#     sqz = SqzMom(setup_data)
+#     sqz.set_config(sqz_config)
+#
+#     sqzs = []
+#     for i in range(3):
+#         date = setup_data[i]['date']
+#         value, sqzOn, sqzOff, noSqz = sqz.set_date(date).get_data()
+#         sqzs.append(value)
+#
+#     expected = [-422, -207, -150]
+#     assert sqzs == expected

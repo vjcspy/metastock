@@ -1,4 +1,7 @@
 import logging
+from datetime import datetime
+
+from pythonjsonlogger import jsonlogger
 
 
 class CustomFormatter(logging.Formatter):
@@ -11,11 +14,11 @@ class CustomFormatter(logging.Formatter):
     format = "%(asctime)s %(levelname)s %(filename)s:%(lineno)d - %(message)s"
 
     FORMATS = {
-            logging.DEBUG: grey + format + reset,
-            logging.INFO: grey + format + reset,
-            logging.WARNING: yellow + format + reset,
-            logging.ERROR: red + format + reset,
-            logging.CRITICAL: bold_red + format + reset
+        logging.DEBUG   : grey + format + reset,
+        logging.INFO    : grey + format + reset,
+        logging.WARNING : yellow + format + reset,
+        logging.ERROR   : red + format + reset,
+        logging.CRITICAL: bold_red + format + reset
     }
 
     def format(self, record):
@@ -43,3 +46,20 @@ class RichFormatter(logging.Formatter):
             log_message = f"{log_message}"
 
         return log_message
+
+
+class CustomJsonFormatter(jsonlogger.JsonFormatter):
+    def add_fields(self, log_record, record, message_dict):
+        super(CustomJsonFormatter, self).add_fields(log_record, record, message_dict)
+        # if not log_record.get('timestamp'):
+        #     # this doesn't use record.created, so it is slightly off
+        #     now = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+        #     log_record['timestamp'] = now
+
+        if log_record.get('level'):
+            log_record['level'] = log_record['level'].upper()
+        else:
+            log_record['level'] = record.levelname
+
+        if not log_record.get('file'):
+            log_record['file'] = record.filename + ':' + str(record.lineno)
