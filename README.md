@@ -1,11 +1,14 @@
 # Metastock
 
+[TOC]
+
+
+
 ## Environment
 
-Since **`poetry`** helps us manage environments, we no longer need to use Python virtualenv.
+Since **`poetry`** helps us manage environments, ~~we no longer need to use Python virtualenv.~~
 
-When creating a new project and using it with PyCharm, it will be fully integrated with the default mechanism. This will
-create a new isolated environment in the `/.cache/pypoetry/` folder.
+When creating a new project and using it with PyCharm, it will be fully integrated with the default mechanism. This will create a new isolated environment in the `/.cache/pypoetry/` folder.
 
 Lúc đó, chỉ còn trường hợp xảy ra là mình muốn thay đổi version của python. For more info,
 visit [link](https://python-poetry.org/docs/managing-environments/)
@@ -28,8 +31,7 @@ pm2 start metastock/bin/start_consumer.py --log-date-format '' --interpreter=/ho
 
 ## Production
 
-So far, the significant way is run by pm2. This is the best method that will not consume much time and resources
-compared to building a Docker file or Kubernetes.
+So far, the significant way is run by pm2. This is the best method that will not consume much time and resources compared to building a Docker file or Kubernetes.
 
 But, we need create a python file to call metastock module
 
@@ -56,3 +58,9 @@ pm2 start metastock/start_consumer.py --log-date-format '' --interpreter=/home/w
 ## Refer:
 
 - Create a package https://typer.tiangolo.com/tutorial/package/
+
+
+
+# Metastock Flask
+
+Refer [this](https://www.notion.so/vjcspy/Install-Splask-AWS-EC2-a04bbde5bef347f79fe2d53311cbe7c2)

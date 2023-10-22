@@ -16,7 +16,7 @@ class StockTradingAnalysisHullma:
         hullma = Hullma(history=price_history, symbol=self.symbol)
         hullma.set_config(hullma_config)
         hullma_data = hullma.get_data()
-        hullma_data_state = self._calculate_state_hullma(hullma_data)
+        hullma_data_state, cur_cap_percent = self._calculate_state_hullma(hullma_data)
 
         # addition information for downtrend
         current_trend = hullma_data_state.iloc[0]['trend']
@@ -35,7 +35,8 @@ class StockTradingAnalysisHullma:
         data = {
             "l16_hullma_trend"               : int(current_trend),
             "l16_hullma_highest_diff_percent": int(change_percent),
-            "l16_hullma_day_in_trend"        : int(day_in_down_trend)
+            "l16_hullma_day_in_trend"        : int(day_in_down_trend),
+            "l16_hullma_cap_percent"         : int(cur_cap_percent)
         }
 
         return data
@@ -51,7 +52,7 @@ class StockTradingAnalysisHullma:
         return None
 
     def _find_beginning_last_up_trend(self, df: pd.DataFrame, date_range=10):
-        current_trend = df.iloc[0]['trend']
+        current_trend = df.copy(deep=True)[df['trend'] != 0].iloc[0]['trend']
         last_up_trend = False
         total_date_range = 0
         if current_trend == -1:
@@ -69,7 +70,18 @@ class StockTradingAnalysisHullma:
 
         return None
 
-    def _calculate_state_hullma(self, hullma_data, window=4):
+    def _find_beginning_current_trend(self, df: pd.DataFrame):
+        current_trend = df.copy(deep=True)[df['trend'] != 0].iloc[0]['trend']
+        for index, row in df.iterrows():
+            _day_trend = row['trend']
+
+            if _day_trend == 0 or _day_trend == current_trend:
+                continue
+
+            return index
+
+
+    def _calculate_state_hullma(self, hullma_data: pd.Series, window=4):
         # hullma change qua cac ngay
         hullma_data_ca = hullma_data[::-1].diff()
         hullma_data_ca_avg = hullma_data_ca.abs().rolling(window=window).mean().shift(1)
@@ -92,7 +104,12 @@ class StockTradingAnalysisHullma:
         result_df.loc[condition_positive, 'trend'] = 1
         result_df.loc[condition_negative, 'trend'] = -1
 
-        return result_df
+        # Check if value is not ceil and gap percent
+        beginning_trend_date = self._find_beginning_current_trend(result_df.copy(deep=True))
+        hullma_data_ca_current = hullma_data_ca.abs()[hullma_data_ca.index.max()]
+        hullma_data_ca_max_current_trend = hullma_data_ca.abs()[hullma_data_ca.index >= beginning_trend_date].max()
+
+        return result_df, round(hullma_data_ca_current * 100 / hullma_data_ca_max_current_trend)
 
     def _get_price_history(self):
         if self._price_history is None:

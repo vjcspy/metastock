@@ -6,6 +6,7 @@ from metastock.modules.core.util.http_client import http_client
 from metastock.modules.rabbitmq.job_worker import JobWorker
 from metastock.modules.rabbitmq.schema import job_consumer_body_schema
 from metastock.modules.stockinfo.ulti.get_price_history import get_price_history
+from metastock.modules.trade.analysis.cap import StockTradingAnalysisCap
 from metastock.modules.trade.analysis.hullma import StockTradingAnalysisHullma
 from metastock.modules.trade.analysis.total_trade_value import StockTradingAnalysisTotalTradeValue
 from metastock.modules.trade.error import JobConsumerPayloadDataError
@@ -18,7 +19,6 @@ class StockTradingAnalysisWorker(JobWorker):
     def __init__(self):
         self._symbol = None
         self._price_helper = None
-
 
     def handle(self, ch, method, properties, body):
         Logger().info("Process stock trading analysis")
@@ -34,21 +34,29 @@ class StockTradingAnalysisWorker(JobWorker):
             raise JobConsumerPayloadDataError("payload symbol must be a string")
 
         price_history = self._get_price_history()
+
+        # Analyze total trade
         total_trade_analysis = StockTradingAnalysisTotalTradeValue(
                 symbol=self.get_symbol(),
                 price_history=price_history
         )
         total_trade_data = total_trade_analysis.get_data()
 
+        # Analyze Hullma
         hullma_analysis = StockTradingAnalysisHullma(symbol=self.get_symbol(), price_history=price_history)
         hullma_analysis_data = hullma_analysis.get_data()
+
+        # analyze capitalization
+        cap = StockTradingAnalysisCap(symbol=self.get_symbol(), price_history=price_history)
+        cap_data = cap.get_data()
 
         # save to downstream
         self._save_data_to_api(
                 {
                     "symbol": self.get_symbol(),
                     **total_trade_data,
-                    **hullma_analysis_data
+                    **hullma_analysis_data,
+                    **cap_data
                 }
         )
 
