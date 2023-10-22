@@ -62,11 +62,11 @@ class StockTradingAnalysisWorker(JobWorker):
 
     def _save_data_to_api(self, data: dict):
         Logger().info(f"Will save analysis data to downstream for '{self.get_symbol()}'")
-        Logger().debug(f"Analysis data of '{self.get_symbol()}' {data}")
+        Logger().debug(f"Data to save symbol'{self.get_symbol()}' {data}")
         client = http_client()
         res = client.patch(TradeUrlValue.STOCK_TRADING_ANALYSIS_URL, data)
 
-        Logger().debug(f"save analysis data response {res.text}")
+        Logger().debug(f"Save analysis data response {res.text}")
 
         if res.status_code == 200:
             Logger().ok(f"save analysis data to downstream for '{self.get_symbol()}'")

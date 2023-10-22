@@ -16,7 +16,7 @@ class StockTradingAnalysisHullma:
         hullma = Hullma(history=price_history, symbol=self.symbol)
         hullma.set_config(hullma_config)
         hullma_data = hullma.get_data()
-        hullma_data_state, cur_cap_percent = self._calculate_state_hullma(hullma_data)
+        hullma_data_state, cur_gap_percent = self._calculate_state_hullma(hullma_data)
 
         # addition information for downtrend
         current_trend = hullma_data_state.iloc[0]['trend']
@@ -36,7 +36,7 @@ class StockTradingAnalysisHullma:
             "l16_hullma_trend"               : int(current_trend),
             "l16_hullma_highest_diff_percent": int(change_percent),
             "l16_hullma_day_in_trend"        : int(day_in_down_trend),
-            "l16_hullma_cap_percent"         : int(cur_cap_percent)
+            "cur_gap_percent"                : int(cur_gap_percent)
         }
 
         return data
