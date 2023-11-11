@@ -4,10 +4,7 @@ from flask_cors import CORS
 from metastock.flaskr.stock_trading import stock_trading
 from metastock.modules.core.logging.logger import Logger
 
-
-BLUEPRINTS = [
-    stock_trading
-]
+BLUEPRINTS = [stock_trading]
 
 
 def create_app(app_name="metastock"):
@@ -47,10 +44,17 @@ def gvars(app):
 
 def error_pages(app):
     # HTTP error pages definitions
-
     @app.errorhandler(403)
     def forbidden_page(error):
-        return jsonify({"error": "Forbidden", "message": "You don't have permission to access this resource"}), 403
+        return (
+            jsonify(
+                {
+                    "error": "Forbidden",
+                    "message": "You don't have permission to access this resource",
+                }
+            ),
+            403,
+        )
 
     @app.errorhandler(404)
     def page_not_found(error):
@@ -58,14 +62,28 @@ def error_pages(app):
 
     @app.errorhandler(405)
     def method_not_allowed(error):
-        return jsonify(
-                {"error": "Method Not Allowed", "message": "The method specified in the request is not allowed"}
-        ), 405
+        return (
+            jsonify(
+                {
+                    "error": "Method Not Allowed",
+                    "message": "The method specified in the request is not allowed",
+                }
+            ),
+            405,
+        )
 
     @app.errorhandler(500)
     def server_error_page(error):
-        return jsonify({"error": "Internal Server Error", "message": "An internal server error occurred"}), 500
+        return (
+            jsonify(
+                {
+                    "error": "Internal Server Error",
+                    "message": "An internal server error occurred",
+                }
+            ),
+            500,
+        )
 
 
 def configure_logging(app):
-    app.logger = Logger('flask_logger')
+    app.logger = Logger("flask_logger")

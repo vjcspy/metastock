@@ -1,5 +1,3 @@
-import arrow
-
 from metastock.modules.com.helper.price_history_df_helper import PriceHistoryDfHelper
 from metastock.modules.core.logging.logger import Logger
 
@@ -16,16 +14,22 @@ class StockTradingAnalysisTotalTradeValue:
         trade_value_30 = self._calculate_trade_value(30)
 
         return {
-            "trade_value_7" : trade_value_7,
+            "trade_value_7": trade_value_7,
             "trade_value_14": trade_value_14,
             "trade_value_30": trade_value_30,
         }
 
     def _calculate_trade_value(self, day_before: int):
-        Logger().info(f"Will calculate trade value for '{self.get_symbol()}' in {day_before} days")
-        df = self._get_price_history_helper(price_history=self._price_history).get_df().head(day_before)
+        Logger().info(
+            f"Will calculate trade value for '{self.get_symbol()}' in {day_before} days"
+        )
+        df = (
+            self._get_price_history_helper(price_history=self._price_history)
+            .get_df()
+            .head(day_before)
+        )
 
-        return round(df['value'].sum() / (day_before * 10 ** 9), 0)
+        return round(df["value"].sum() / (day_before * 10**9), 0)
 
     def _get_price_history_helper(self, price_history) -> PriceHistoryDfHelper:
         if self._price_helper is None:

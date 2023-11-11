@@ -3,7 +3,10 @@ from abc import ABC
 import arrow
 
 from metastock.modules.com.helper.price_history_df_helper import PriceHistoryDfHelper
-from metastock.modules.com.technical_indicator.error import ConfigNotSetError, DateNotSetError
+from metastock.modules.com.technical_indicator.error import (
+    ConfigNotSetError,
+    DateNotSetError,
+)
 from metastock.modules.stockinfo.ulti.get_price_history import get_price_history
 
 
@@ -33,19 +36,23 @@ class TechnicalIndicatorAbstract(ABC):
 
         return self
 
-    def get_price_helper(self) -> PriceHistoryDfHelper:
+    def get_price_helper(self, skip_validate=False) -> PriceHistoryDfHelper:
         if self._price_history_df_helper is None:
-            self._price_history_df_helper = PriceHistoryDfHelper(self.get_history())
+            self._price_history_df_helper = PriceHistoryDfHelper(
+                data=self.get_history(), skip_validate=skip_validate
+            )
 
         return self._price_history_df_helper
 
     def get_history(self):
         if self._history is None:
             current_date = arrow.now()
-            from_date = current_date.shift(months=-6).format('YYYY-MM-DD')
+            from_date = current_date.shift(months=-6).format("YYYY-MM-DD")
 
             self._history = get_price_history(
-                    symbol=self.get_symbol(), from_date=from_date, to_date=current_date.format('YYYY-MM-DD')
+                symbol=self.get_symbol(),
+                from_date=from_date,
+                to_date=current_date.format("YYYY-MM-DD"),
             )
 
         return self._history
