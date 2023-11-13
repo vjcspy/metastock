@@ -1,0 +1,58 @@
+{
+  "api": "@predefined_input/strategy/v1",
+  "name": "tick_shark_behavior_input_v1",
+  "input": {
+    "range": {
+      "type": "absolute",
+      "from": "2022-04-15",
+      "to": "2023-04-20"
+    },
+    "filter": {
+      "filters": [
+        "total_trade_value_filter"
+      ],
+      "input": {
+        "api": "@filter/input/v1",
+        "input": {
+          "specific_symbols_filter": {
+            "symbols": [
+              "BFC"
+            ]
+          },
+          "total_trade_value_filter": {
+            "top": 100
+          }
+        }
+      }
+    },
+    "signal": {
+      "signals": [
+        "tick_shark_signal"
+      ],
+      "input": {
+        "api": "@signal/input/v1",
+        "input": {
+          "tick_shark_signal": {
+            "trade_value": 250,
+            "shark_collect_percent": 55
+          }
+        }
+      }
+    },
+    "action": {
+      "actions": [
+        "fixed_buy_action_v1"
+      ],
+      "input": {
+        "api": "@action/input/v1",
+        "input": {
+          "buy": {
+            "level": 5
+          },
+          "sell": {},
+          "alert": {}
+        }
+      }
+    }
+  }
+}

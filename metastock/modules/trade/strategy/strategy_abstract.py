@@ -6,14 +6,19 @@ from metastock.modules.core.logging.logger import Logger
 from metastock.modules.core.util.find_common_elements import find_common_elements
 from metastock.modules.stockinfo.ulti.get_price_history import get_price_history
 from metastock.modules.trade.error import (
-    ActionAndSignalNotMatch, CouldNotExecuteStrategy,
+    ActionAndSignalNotMatch,
+    CouldNotExecuteStrategy,
     NotSupportConfigType,
-    StrategyActionNotFound, StrategyFilterNotFound,
+    StrategyActionNotFound,
+    StrategyFilterNotFound,
     StrategySignalNotFound,
 )
 from metastock.modules.trade.strategy.actions.action_manager import action_manager
 from metastock.modules.trade.strategy.filters.filter_manager import filter_manager
-from metastock.modules.trade.strategy.input_schema import STRATEGY_INPUT_SCHEMA_V1, STRATEGY_INPUT_SCHEMA_V1_NAME
+from metastock.modules.trade.strategy.input_schema import (
+    STRATEGY_INPUT_SCHEMA_V1,
+    STRATEGY_INPUT_SCHEMA_V1_NAME,
+)
 from metastock.modules.trade.strategy.signals.signal_manager import signal_manager
 
 
@@ -59,7 +64,9 @@ class StrategyAbstract(ABC):
     def get_symbol(self):
         return self.symbol
 
-    def load_input(self, input_config: dict, from_date: str = None, to_date: str = None) -> bool:
+    def load_input(
+        self, input_config: dict, from_date: str = None, to_date: str = None
+    ) -> bool:
         """
         from_date and to_date may be passed because they are resolved before send to API server in case relative date
         """
@@ -67,7 +74,7 @@ class StrategyAbstract(ABC):
         self.from_date = from_date
         self.to_date = to_date
 
-        api = input_config['api']
+        api = input_config["api"]
 
         if api == STRATEGY_INPUT_SCHEMA_V1_NAME:
             self._load_input_v1()
@@ -81,16 +88,18 @@ class StrategyAbstract(ABC):
             validate(self.input_config, STRATEGY_INPUT_SCHEMA_V1)
 
         except Exception as e:
-            raise NotSupportConfigType(f"Wrong format of {STRATEGY_INPUT_SCHEMA_V1_NAME}")
+            raise NotSupportConfigType(
+                f"Wrong format of {STRATEGY_INPUT_SCHEMA_V1_NAME}"
+            )
 
-        _filter_config = self.input_config['input']['filter']
-        self._load_filters(_filter_config['filters'], _filter_config['input'])
+        _filter_config = self.input_config["input"]["filter"]
+        self._load_filters(_filter_config["filters"], _filter_config["input"])
 
-        _signal_config = self.input_config['input']['signal']
-        self._load_signals(_signal_config['signals'], _signal_config['input'])
+        _signal_config = self.input_config["input"]["signal"]
+        self._load_signals(_signal_config["signals"], _signal_config["input"])
 
-        _action_config = self.input_config['input']['action']
-        self._load_actions(_action_config['actions'], _action_config['input'])
+        _action_config = self.input_config["input"]["action"]
+        self._load_actions(_action_config["actions"], _action_config["input"])
 
     def _load_filters(self, filters: list[str], filter_input):
         if self._is_loaded_filter is True:
@@ -118,7 +127,6 @@ class StrategyAbstract(ABC):
             _list.append(_filter.get_allowable_list())
 
         return find_common_elements(*_list)
-
 
     def _load_signals(self, signals: list[str], signal_input):
         for signal_class_name in signals:
@@ -157,7 +165,7 @@ class StrategyAbstract(ABC):
 
                 if len(find_common_elements(signal_outputs, action_supports)) == 0:
                     raise ActionAndSignalNotMatch(
-                            f"Action '{action.get_name()}' not match with any output of signal '{signal.get_name()}'"
+                        f"Action '{action.get_name()}' not match with any output of signal '{signal.get_name()}'"
                     )
 
     def execute(self):
@@ -169,14 +177,24 @@ class StrategyAbstract(ABC):
         """
 
         try:
-            self.price_history = get_price_history(symbol=self.symbol, from_date=self.from_date, to_date=self.to_date)
+            self.price_history = get_price_history(
+                symbol=self.symbol, from_date=self.from_date, to_date=self.to_date
+            )
         except Exception as e:
             Logger().error(
-                    "An error occurred when send to downstream: %s",
-                    e,
+                "An error occurred when send to downstream: %s",
+                e,
             )
 
-            raise CouldNotExecuteStrategy(f"Due to error get price history data {self.symbol}")
+            raise CouldNotExecuteStrategy(
+                f"Due to error get price history data {self.symbol}"
+            )
 
     def get_price_history(self):
         return self.price_history
+
+    def get_from_date(self):
+        return self.from_date
+
+    def get_to_date(self):
+        return self.to_date

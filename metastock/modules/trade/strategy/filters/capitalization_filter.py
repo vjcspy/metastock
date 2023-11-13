@@ -2,7 +2,7 @@ from metastock.modules.trade.strategy.filters.filter_abstract import FilterAbstr
 
 
 class CapitalizationFilter(FilterAbstract):
-    name = 'capitalization_filter'
+    name = "capitalization_filter"
 
-    def filter(self, symbol: str) -> bool:
-        return True
+    def get_allowable_list(self) -> list[str]:
+        pass

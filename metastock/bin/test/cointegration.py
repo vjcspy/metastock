@@ -1,14 +1,9 @@
-from metastock.modules.com.helper.cointegration_test_helper import CointegrationTestHelper
-from metastock.modules.stockinfo.value.constain import VNINDEX_SYMBOL
+from metastock.modules.stockinfo.ulti.get_tick import get_tick
+from metastock.modules.trade.analysis.tick import StockTradingAnalysisTick
 
-helper = CointegrationTestHelper(
-        symbol1='VIN',
-        symbol2=VNINDEX_SYMBOL,
-)
+tick_data = get_tick(symbol="VSC", date="2023-11-10")
 
-helper.is_cointegration()
+tick_analysis = StockTradingAnalysisTick(tick_data=tick_data)
+data = tick_analysis.get_data()
 
-print(f"beta: {helper.beta()}")
-
-vecm = helper.vecm()
-print(helper.vecm())
+print("a")

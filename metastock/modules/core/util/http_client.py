@@ -1,6 +1,6 @@
 import requests
 
-from metastock.modules.core.logging.logger import Logger
+from metastock.modules.core.util.app_error import AppError
 
 
 class HttpClient:
@@ -25,6 +25,13 @@ class HttpClient:
         response = requests.patch(url, json=data)
         # response.raise_for_status()
         return response
+
+    def fetch(self, url: str):
+        res = self.get(url)
+        if res.status_code != 200:
+            raise AppError("Due to error get tick history data")
+
+        return res.json()
 
 
 def http_client() -> HttpClient:

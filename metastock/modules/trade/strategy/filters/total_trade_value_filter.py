@@ -7,7 +7,7 @@ from metastock.modules.trade.value.url import TradeUrlValue
 
 
 class TotalTradeValueFilter(FilterAbstract):
-    name = 'total_trade_value_filter'
+    name = "total_trade_value_filter"
 
     def __init__(self):
         super().__init__()
@@ -34,12 +34,16 @@ class TotalTradeValueFilter(FilterAbstract):
         Logger().ok("get analysis data from downstream")
 
         _input = self.get_input()
-        top = 50
-        if isinstance(_input, dict):
-            _input = _input.get('total_trade_value_filter')
 
-            if isinstance(_input, dict) and isinstance(_input.get('top'), int):
-                top = _input.get('top')
+        if "total_trade_value_filter" in _input:
+            Logger().info(f"Has config for filter total_trade_value_filter: {_input}")
+
+        top = _input["total_trade_value_filter"].get("top") or 50
+        if isinstance(_input, dict):
+            _input = _input.get("total_trade_value_filter")
+
+            if isinstance(_input, dict) and isinstance(_input.get("top"), int):
+                top = _input.get("top")
 
         Logger().info(f"Total trade value filter config top {top}")
 
@@ -47,9 +51,13 @@ class TotalTradeValueFilter(FilterAbstract):
         total_trade_14_days = self._get_top_trade(14, top)
         total_trade_30_days = self._get_top_trade(30, top)
 
-        return find_common_elements(total_trade_7_days, total_trade_14_days, total_trade_30_days)
+        return find_common_elements(
+            total_trade_7_days, total_trade_14_days, total_trade_30_days
+        )
 
     def _get_top_trade(self, days: int, top: int):
-        sorted_data = sorted(self._analysis_data, key=lambda x: x[f"trade_value_{days}"], reverse=True)
+        sorted_data = sorted(
+            self._analysis_data, key=lambda x: x[f"trade_value_{days}"], reverse=True
+        )
 
-        return [entry['symbol'] for entry in sorted_data[:top]]
+        return [entry["symbol"] for entry in sorted_data[:top]]

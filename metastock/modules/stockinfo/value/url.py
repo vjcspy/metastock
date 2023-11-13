@@ -23,17 +23,24 @@ TICKER_HISTORY = (
 
 
 class StockInfoUrl:
+    TICK_BASE_URL = "https://stock.ngocdiep.top"
+
     def get_ticker_history_url(
         self,
         symbol: str,
         from_date: str,
         to_date: str = arrow.utcnow().format("YYYY-MM-DD"),
     ):
-        base_url = self._get_base_url()
+        base_url = StockInfoUrl.TICK_BASE_URL
 
         return (
             f"{base_url}/tick/histories?symbol={symbol}&from={from_date}&to={to_date}"
         )
+
+    def get_tick_url(self, symbol: str, date=arrow.utcnow().format("YYYY-MM-DD")):
+        base_url = StockInfoUrl.TICK_BASE_URL
+
+        return f"{base_url}/tick/history?symbol={symbol}&date={date}"
 
     def _get_base_url(self):
         if env().get("PS_API_END_POINT") is None:
