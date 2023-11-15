@@ -24,6 +24,10 @@ class StockTradingAnalysisTick:
             tick_list=valid_tick_by_trade_value
         )
 
+        is_shark_collect, shark_collect_from_price = self._check_if_shark_collect(
+            tick_data=buy_sell_info_at_price
+        )
+
         return {
             "trade_value": {
                 "buy_total_buy_ratio": round(
@@ -35,9 +39,10 @@ class StockTradingAnalysisTick:
                 "buy_sell_ratio": round(ttB * 100 / (ttB + ttS)),
             },
             "buy_sell_ratio": round(tB * 100 / (tB + tS)),
-            "is_shark_collect": self._check_if_shark_collect(
-                tick_data=buy_sell_info_at_price
-            ),
+            "is_shark_collect": is_shark_collect,
+            "shark_collect_from_price": int(shark_collect_from_price)
+            if shark_collect_from_price is not None
+            else None,
         }
 
     def _check_if_shark_collect(self, tick_data: dict):
@@ -53,11 +58,11 @@ class StockTradingAnalysisTick:
                 count_price > 1
                 and round(tB * 100 / (tS + tB), 2) > self.config.shark_collect_percent
             ):
-                return True
+                return True, key
 
             count_price += 1
 
-        return False
+        return False, None
 
     def _get_valid_tick_by_trade_value(self):
         meta = self.tick_data["meta"]

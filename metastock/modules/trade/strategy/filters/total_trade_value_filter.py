@@ -21,7 +21,7 @@ class TotalTradeValueFilter(FilterAbstract):
         client = http_client()
 
         Logger().info("Will get analysis data from downstream")
-        res = client.get(TradeUrlValue.STOCK_TRADING_ANALYSIS_URL)
+        res = client.get(TradeUrlValue().get_stock_trading_analysis_url())
 
         if res.status_code != 200:
             raise StockTradingAnalysisNotFound()

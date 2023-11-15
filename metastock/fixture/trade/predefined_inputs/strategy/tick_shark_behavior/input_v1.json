@@ -33,8 +33,8 @@
         "api": "@signal/input/v1",
         "input": {
           "tick_shark_signal": {
-            "trade_value": 250,
-            "shark_collect_percent": 55
+            "trade_value": 300,
+            "shark_collect_percent": 60
           }
         }
       }

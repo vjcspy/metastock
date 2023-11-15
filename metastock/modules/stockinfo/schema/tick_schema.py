@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields
+from marshmallow import EXCLUDE, fields, Schema
 
 
 # Lược đồ cho phần tử trong mảng "meta"
@@ -11,6 +11,9 @@ class TickMetaItemSchema(Schema):
 
 # Lược đồ chính
 class TickSchema(Schema):
+    class Meta:
+        unknown = EXCLUDE  # hoặc bạn có thể sử dụng INCLUDE
+
     id = fields.Integer(required=True)
     symbol = fields.String(required=True)
     date = fields.DateTime(required=True)

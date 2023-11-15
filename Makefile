@@ -6,6 +6,9 @@ flask:
 test:
 	@poetry run python -m pytest
 
+queue-trading-strategy:
+	@ENVIRONMENT=development poetry run python -m metastock queue:consumer:start strategy_process
+
 queue-analysis-job:
 	@ENVIRONMENT=development poetry run python -m metastock queue:consumer:start stock_trading_analysis_job_consumer
 

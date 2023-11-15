@@ -1,8 +1,10 @@
+import arrow
+
 from metastock.modules.core.logging.logger import Logger
 from metastock.modules.stockinfo.ulti.get_tick_history import get_tick_history
 from metastock.modules.trade.analysis.tick import (
-    StockTradingAnalysisTick,
     AnalysisTickConfig,
+    StockTradingAnalysisTick,
 )
 from metastock.modules.trade.strategy.signals.output_schema import (
     SIGNAL_OUTPUT_SCHEMA_V1_NAME,
@@ -24,22 +26,29 @@ class TickSignal(SignalAbstract):
 
         tick_config = AnalysisTickConfig()
         if "tick_shark_signal" in input_data:
-            Logger().info("Has config for tick_shark_signal")
+            Logger().info(
+                f"Has config for tick_shark_signal in strategy input: {input_data['tick_shark_signal']}"
+            )
             tick_config.trade_value = input_data["tick_shark_signal"]["trade_value"]
             tick_config.shark_collect_percent = input_data["tick_shark_signal"][
                 "shark_collect_percent"
             ]
 
         collected_days = []
-
+        Logger().info(f"Processing analyze tick data for {len(ticks)} days")
         for tick in ticks:
             tick_analysis = StockTradingAnalysisTick(tick_data=tick, config=tick_config)
             data = tick_analysis.get_data()
 
             if data["is_shark_collect"]:
-                collected_days.append(tick["date"])
+                collected_days.append(
+                    {
+                        "date": arrow.get(tick["date"]).format("YYYY-MM-DD"),
+                        "p": data["shark_collect_from_price"],
+                    }
+                )
 
-        return collected_days
+        return {"buy": collected_days}
 
     def support_output_versions(self) -> list[str]:
         return [SIGNAL_OUTPUT_SCHEMA_V1_NAME]

@@ -1,11 +1,11 @@
 from metastock.modules.core.logging.logger import Logger
 from metastock.modules.core.util.http_client import http_client
 from metastock.modules.stockinfo.ulti.error import CouldNotGetSymbolInfo
-from metastock.modules.stockinfo.value.url import SYMBOL_INFO_URL
+from metastock.modules.stockinfo.value.url import StockInfoUrl
 
 
 def get_symbol_info(symbol: str):
-    url = f"{SYMBOL_INFO_URL}?symbol={symbol}"
+    url = StockInfoUrl().get_stock_info_url(symbol=symbol)
 
     client = http_client()
 
