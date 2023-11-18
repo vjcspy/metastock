@@ -15,15 +15,21 @@ class HttpClient:
         return response
 
     @staticmethod
-    def post(url, data: dict, config: dict = None):
+    def post(url, data: dict, config: dict = None, raise_for_status=False):
         response = requests.post(url, json=data)
-        # response.raise_for_status()
+
+        if raise_for_status is True:
+            response.raise_for_status()
+
         return response
 
     @staticmethod
-    def patch(url, data: dict, config: dict = None):
+    def patch(url, data: dict, config: dict = None, raise_for_status=False):
         response = requests.patch(url, json=data)
-        # response.raise_for_status()
+
+        if raise_for_status is True:
+            response.raise_for_status()
+
         return response
 
     def fetch(self, url: str):

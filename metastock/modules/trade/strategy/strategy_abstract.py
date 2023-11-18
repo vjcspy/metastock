@@ -1,9 +1,12 @@
 from abc import ABC, abstractmethod
+from enum import Enum
 
 from jsonschema.validators import validate
 
 from metastock.modules.core.logging.logger import Logger
+from metastock.modules.core.util.app_error import AppError
 from metastock.modules.core.util.find_common_elements import find_common_elements
+from metastock.modules.core.util.http_client import http_client
 from metastock.modules.stockinfo.ulti.get_price_history import get_price_history
 from metastock.modules.trade.error import (
     ActionAndSignalNotMatch,
@@ -20,6 +23,15 @@ from metastock.modules.trade.strategy.input_schema import (
     STRATEGY_INPUT_SCHEMA_V1_NAME,
 )
 from metastock.modules.trade.strategy.signals.signal_manager import signal_manager
+from metastock.modules.trade.value.url import TradeUrlValue
+
+
+class TradingStrategyState(Enum):
+    Pending = 0
+    Processing = 1
+    Complete = 2
+    Error = 3
+    OutScope = 4
 
 
 class StrategyAbstract(ABC):
@@ -29,6 +41,8 @@ class StrategyAbstract(ABC):
     name = None
 
     def __init__(self):
+        self.bulk_action_data = None
+        self.hash_key = None
         self._is_loaded_filter = False
         self.to_date = None
         self.from_date = None
@@ -58,6 +72,11 @@ class StrategyAbstract(ABC):
 
     def set_symbol(self, symbol: str):
         self.symbol = symbol
+
+        return self
+
+    def set_hash(self, hash_key: str):
+        self.hash_key = hash_key
 
         return self
 
@@ -198,3 +217,62 @@ class StrategyAbstract(ABC):
 
     def get_to_date(self):
         return self.to_date
+
+    def set_bulk_action(self, bulk_action_data):
+        self.bulk_action_data = bulk_action_data
+
+    def get_bulk_action_data(self):
+        return self.bulk_action_data
+
+    def bulk_submit_action(self):
+        if self.bulk_action_data is None:
+            Logger().info(
+                f"Nothing to submit for strategy {self.hash_key} with symbol {self.get_symbol()}"
+            )
+
+            return
+
+        url = TradeUrlValue().get_stock_trading_bulk_submit()
+
+        client = http_client()
+        Logger().will(
+            f"send bulk submit data to url {url} for symbol {self.get_symbol()}"
+        )
+
+        res = client.post(
+            url=url,
+            data={
+                "hash": self.hash_key,
+                "symbol": self.get_symbol(),
+                "buy": self.bulk_action_data["buy"],
+            },
+            raise_for_status=False,
+        )
+
+        if res.status_code == 200:
+            Logger().ok(f"submitted action data {res}")
+        else:
+            Logger().error(f"failed submit action data {res}")
+
+        raise AppError(f"failed submit action data with statusCode {res.status_code}")
+
+    def mark_process_state(self, state: TradingStrategyState):
+        url = TradeUrlValue().get_stock_trading_patch_process()
+        client = http_client()
+        Logger().will(
+            f"update strategy process to url {url} for symbol {self.get_symbol()} to {state}"
+        )
+
+        try:
+            res = client.patch(
+                url=url,
+                data={
+                    "hash": self.hash_key,
+                    "symbol": self.get_symbol(),
+                    "state": state.value,
+                },
+            )
+
+            Logger().ok(f"updated process state {res}")
+        except Exception as e:
+            Logger().error(f"could not update process state {e}")

@@ -31,9 +31,9 @@ class StrategyConsumer(RabbitMQConsumer):
                 raise UnknownMessageFromQueue()
 
             hash_key = data.get("hash")
-            symbol = "HPG"
+            symbol = data.get("symbol")
 
-            if hash is None or symbol is None:
+            if hash_key is None or symbol is None:
                 raise UnknownMessageFromQueue()
 
             self.logger.info(
@@ -56,7 +56,7 @@ class StrategyConsumer(RabbitMQConsumer):
                 from_date=strategy_data.get("from"),
                 to_date=strategy_data.get("to"),
             )
-            strategy.set_symbol(symbol)
+            strategy.set_symbol(symbol).set_hash(hash_key)
             strategy.execute()
 
             ch.basic_ack(delivery_tag=method.delivery_tag)

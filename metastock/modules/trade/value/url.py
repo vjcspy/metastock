@@ -25,6 +25,16 @@ class TradeUrlValue:
 
         return f"{base_url}/stock-trading/analysis"
 
+    def get_stock_trading_bulk_submit(self):
+        base_url = self._get_base_url()
+
+        return f"{base_url}/strategy/bulk-submit-action"
+
+    def get_stock_trading_patch_process(self):
+        base_url = self._get_base_url()
+
+        return f"{base_url}/strategy/process"
+
     def _get_base_url(self):
         if env().get("PS_API_END_POINT") is None:
             raise AppError("Missing PS_API_END_POINT env config")

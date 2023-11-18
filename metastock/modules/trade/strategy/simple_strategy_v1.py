@@ -1,4 +1,7 @@
-from metastock.modules.trade.strategy.strategy_abstract import StrategyAbstract
+from metastock.modules.trade.strategy.strategy_abstract import (
+    StrategyAbstract,
+    TradingStrategyState,
+)
 
 
 class SimpleStrategyV1(StrategyAbstract):
@@ -14,9 +17,16 @@ class SimpleStrategyV1(StrategyAbstract):
 
     def execute(self):
         super().execute()
+        self.mark_process_state(state=TradingStrategyState.Processing)
 
-        # Process filter in runtime, global filter already run in generator
+        try:
+            # Process filter in runtime, global filter already run in generator
 
-        # Process action
-        for action in self.actions:
-            action.run(self, self.signals)
+            # Process action
+            for action in self.actions:
+                action.run(self, self.signals)
+
+            self.bulk_submit_action()
+            self.mark_process_state(state=TradingStrategyState.Complete)
+        except:
+            self.mark_process_state(state=TradingStrategyState.Error)

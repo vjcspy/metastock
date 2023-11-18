@@ -17,6 +17,8 @@ class FixedBuyActionV1(ActionAbstract):
         return [SIGNAL_OUTPUT_SCHEMA_V1_NAME]
 
     def run(self, strategy: StrategyAbstract, signals: list[SignalAbstract]):
+        buy_actions = []
+
         for signal in signals:
             version_compatible = self._get_compatible_versions(signal).pop(0)
 
@@ -28,13 +30,10 @@ class FixedBuyActionV1(ActionAbstract):
                 Logger().info(
                     f"Detected {len(signal_output['buy'])} days has buy signal"
                 )
-                Logger().will("Send data to API to save buy action")
-                for buy_data in signal_output["buy"]:
-                    date = buy_data["date"]
-                    price = buy_data["p"]
 
-                    Logger().info(
-                        f"Will send data buy with date: {date} at price: {price}"
+                for buy_data in signal_output["buy"]:
+                    buy_actions.append(
+                        {"date": buy_data["date"], "price": buy_data["p"]}
                     )
             except ValidationError:
                 Logger().warning(
@@ -44,3 +43,11 @@ class FixedBuyActionV1(ActionAbstract):
                 Logger().warning(
                     f"fixed_buy_action_v1 could not process output of signal: {signal.name}"
                 )
+
+        # TODO: need to handle when have multiple signal
+
+        # Assume we already processed and had data for buy actions
+        # TODO: first we have to retrieve bulk_action_data and update for previous actions
+
+        # then we re-save bulk_action_data
+        strategy.set_bulk_action(bulk_action_data={"buy": buy_actions})

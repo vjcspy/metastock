@@ -35,7 +35,7 @@ class TickSignal(SignalAbstract):
             ]
 
         collected_days = []
-        Logger().info(f"Processing analyze tick data for {len(ticks)} days")
+        Logger().will(f"process analyzing tick data for {len(ticks)} days...")
         for tick in ticks:
             tick_analysis = StockTradingAnalysisTick(tick_data=tick, config=tick_config)
             data = tick_analysis.get_data()
