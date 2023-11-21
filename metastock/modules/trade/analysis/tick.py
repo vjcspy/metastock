@@ -30,15 +30,17 @@ class StockTradingAnalysisTick:
 
         return {
             "trade_value": {
-                "buy_total_buy_ratio": round(
-                    ttB * 100 / tB, 2
-                ),  # La buy thoa man trade value tren tong buy
-                "sell_total_sell_ratio": round(
-                    ttS * 100 / tS
-                ),  # La sell thoa man trade value tren tong sell
-                "buy_sell_ratio": round(ttB * 100 / (ttB + ttS)),
+                "buy_total_buy_ratio": round(ttB * 100 / tB, 2)
+                if tB > 0
+                else 0,  # La buy thoa man trade value tren tong buy
+                "sell_total_sell_ratio": round(ttS * 100 / tS)
+                if tS > 0
+                else 0,  # La sell thoa man trade value tren tong sell
+                "buy_sell_ratio": round(ttB * 100 / (ttB + ttS))
+                if ttB + ttS > 0
+                else 0,
             },
-            "buy_sell_ratio": round(tB * 100 / (tB + tS)),
+            "buy_sell_ratio": round(tB * 100 / (tB + tS)) if tB + tS > 0 else 0,
             "is_shark_collect": is_shark_collect,
             "shark_collect_from_price": int(shark_collect_from_price)
             if shark_collect_from_price is not None
@@ -55,7 +57,8 @@ class StockTradingAnalysisTick:
             tB += tick_data[key]["B"]
 
             if (
-                count_price > 1
+                tS + tB > 0
+                and count_price > 1
                 and round(tB * 100 / (tS + tB), 2) > self.config.shark_collect_percent
             ):
                 return True, key

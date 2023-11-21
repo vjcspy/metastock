@@ -1,7 +1,9 @@
 import logging
 import os
 
+from rich.console import Console
 from rich.logging import RichHandler
+from rich.rule import Rule
 from splunk_handler import SplunkHandler
 
 from metastock.modules.core.logging.formatter import CustomJsonFormatter, RichFormatter
@@ -11,11 +13,19 @@ _log_instances = {}
 
 
 class AppLogger(logging.Logger):
+    _console = Console()
+
     def ok(self, msg, *args, **kwargs):
         self.info(f"[green]OK[/green] {msg}", *args, **kwargs)
 
     def will(self, msg, *args, **kwargs):
         self.info(f"[blue]Will[/blue] {msg}", *args, **kwargs)
+
+    def console(self):
+        return self._console
+
+    def print_rule(self, text: str = ""):
+        self._console.print(Rule(text))
 
 
 def Logger(name: str = "root") -> AppLogger:

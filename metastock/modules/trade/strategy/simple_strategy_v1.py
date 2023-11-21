@@ -1,3 +1,4 @@
+from metastock.modules.core.logging.logger import Logger
 from metastock.modules.trade.strategy.strategy_abstract import (
     StrategyAbstract,
     TradingStrategyState,
@@ -20,7 +21,7 @@ class SimpleStrategyV1(StrategyAbstract):
         self.mark_process_state(state=TradingStrategyState.Processing)
 
         try:
-            # Process filter in runtime, global filter already run in generator
+            # TODO: Process filter in runtime, global filter already run in generator
 
             # Process action
             for action in self.actions:
@@ -28,5 +29,8 @@ class SimpleStrategyV1(StrategyAbstract):
 
             self.bulk_submit_action()
             self.mark_process_state(state=TradingStrategyState.Complete)
-        except:
+        except Exception as e:
+            Logger().error(
+                f"Could not execute strategy '{self.name}' {e}", exc_info=True
+            )
             self.mark_process_state(state=TradingStrategyState.Error)

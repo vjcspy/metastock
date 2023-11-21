@@ -35,6 +35,16 @@ class TradeUrlValue:
 
         return f"{base_url}/strategy/process"
 
+    def get_strategy_processes(self, strategy_hash: str):
+        base_url = self._get_base_url()
+
+        return f"{base_url}/strategy/strategy-processes?hash={strategy_hash}"
+
+    def get_strategy_process_actions(self, strategy_hash: str, symbol=str):
+        base_url = self._get_base_url()
+
+        return f"{base_url}/strategy/strategy-process-actions?hash={strategy_hash}&symbol={symbol}"
+
     def _get_base_url(self):
         if env().get("PS_API_END_POINT") is None:
             raise AppError("Missing PS_API_END_POINT env config")

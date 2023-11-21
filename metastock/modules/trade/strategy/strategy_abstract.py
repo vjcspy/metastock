@@ -250,11 +250,14 @@ class StrategyAbstract(ABC):
         )
 
         if res.status_code == 200:
-            Logger().ok(f"submitted action data {res}")
+            Logger().ok(
+                f"submitted action data for hash {self.hash_key} symbol {self.get_symbol()} {res}"
+            )
         else:
             Logger().error(f"failed submit action data {res}")
-
-        raise AppError(f"failed submit action data with statusCode {res.status_code}")
+            raise AppError(
+                f"failed submit action data with statusCode {res.status_code}"
+            )
 
     def mark_process_state(self, state: TradingStrategyState):
         url = TradeUrlValue().get_stock_trading_patch_process()

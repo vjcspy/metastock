@@ -12,7 +12,11 @@ from metastock.config.trading_config import init_trading_strategy_config
 from metastock.modules.core.logging.logger import Logger
 from metastock.modules.rabbitmq.connection_manager import rabbitmq_manager
 from metastock.modules.rabbitmq.consumer_manager import consumer_manager
-from metastock.modules.trade.generator.predefined_strategy_generator import PredefinedStrategyGenerator
+from metastock.modules.trade.generator.predefined_strategy_generator import (
+    PredefinedStrategyGenerator,
+)
+from metastock.modules.trade.strategy.assessor.abstract_accessor import AbstractAccessor
+from metastock.modules.trade.strategy.assessor.accessor_manager import accessor_manager
 
 app = typer.Typer()
 
@@ -46,8 +50,10 @@ def callback():
     """
 
 
-@app.command(name='queue:consumer:start')
-def queue_consumer_start(name: Annotated[str, typer.Argument(help="Name of consumer.")]):
+@app.command(name="queue:consumer:start")
+def queue_consumer_start(
+    name: Annotated[str, typer.Argument(help="Name of consumer.")]
+):
     """
     Start rabbitmq consumer
     """
@@ -60,8 +66,10 @@ def queue_consumer_start(name: Annotated[str, typer.Argument(help="Name of consu
         consumer.run()
 
 
-@app.command(name='strategy:generator:predefine')
-def strategy_generator_predefine(input: Annotated[str, typer.Argument(help="Input file.")]):
+@app.command(name="strategy:generator:predefine")
+def strategy_generator_predefine(
+    input: Annotated[str, typer.Argument(help="Input file.")]
+):
     """
     Use Predefined strategy for generate process
     """
@@ -70,11 +78,35 @@ def strategy_generator_predefine(input: Annotated[str, typer.Argument(help="Inpu
         if "/" not in input:
             input = f"fixture/trade/predefined_inputs/generator/{input}"
 
-        generator = PredefinedStrategyGenerator(
-                predefined_input=input
-        )
+        generator = PredefinedStrategyGenerator(predefined_input=input)
 
         generator.generate()
+    except Exception as e:
+        Logger().error("An error occurred: %s", e, exc_info=True)
+
+
+@app.command(name="strategy:assessor")
+def strategy_assessor(
+    name: Annotated[str, typer.Argument(help="Accessor name")],
+    strategy_hash: Annotated[str, typer.Option(help="Strategy hash")],
+    input_file: Annotated[str, typer.Option(help="Input file")] = "",
+):
+    _introduce()
+    if strategy_hash is None or strategy_hash == "":
+        Logger().error("Please config strategy_hash")
+
+        return
+
+    try:
+        accessor_class = accessor_manager().get_class(name)
+
+        if accessor_class is not None:
+            accessor: AbstractAccessor = accessor_class()
+            accessor.load_input(input_file=input_file)
+            accessor.set_strategy_hash(strategy_hash=strategy_hash)
+            accessor.run()
+        else:
+            Logger().error(f"Not found accessor name {name}")
     except Exception as e:
         Logger().error("An error occurred: %s", e, exc_info=True)
 
@@ -82,6 +114,6 @@ def strategy_generator_predefine(input: Annotated[str, typer.Argument(help="Inpu
 @app.command()
 def main():
     """
-        Do nothing!
+    Do nothing!
     """
     rabbitmq_manager().initialize()

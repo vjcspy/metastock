@@ -6,6 +6,10 @@ from metastock.modules.trade.strategy.actions.fixed_buy_action_v1 import (
     FixedBuyActionV1,
 )
 from metastock.modules.trade.strategy.actions.simple_action_v1 import SimpleActionV1
+from metastock.modules.trade.strategy.assessor.accessor_manager import accessor_manager
+from metastock.modules.trade.strategy.assessor.simple_buy_assessor import (
+    SimpleBuyAssessor,
+)
 from metastock.modules.trade.strategy.filters.capitalization_filter import (
     CapitalizationFilter,
 )
@@ -52,6 +56,11 @@ TRADING_STRATEGY_ACTIONS = {
     FixedBuyActionV1.name: {"class": FixedBuyActionV1},
 }
 
+# ______________ STRATEGY_ACCESSOR ______________
+TRADING_STRATEGY_ACCESSORS = {
+    SimpleBuyAssessor.name: {"class": SimpleBuyAssessor},
+}
+
 
 @run_once
 def init_trading_strategy_config():
@@ -67,3 +76,6 @@ def init_trading_strategy_config():
 
     for key, value in TRADING_STRATEGY_SIGNALS.items():
         signal_manager().define(key, value)
+
+    for key, value in TRADING_STRATEGY_ACCESSORS.items():
+        accessor_manager().define(key, value)
