@@ -49,7 +49,6 @@ class StockTradingAnalysisTick:
 
     def _check_if_shark_collect(self, tick_data: dict):
         sorted_keys = sorted(tick_data.keys(), reverse=True)
-        count_price = 0
         tS = 0
         tB = 0
 
@@ -61,7 +60,6 @@ class StockTradingAnalysisTick:
 
             if (
                 tS + tB > 0
-                and count_price > 1
                 and round(tB * 100 / (tS + tB), 2) > self.config.shark_collect_percent
             ):
                 lowest_price_picked = int(key)

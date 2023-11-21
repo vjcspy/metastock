@@ -64,7 +64,7 @@ class AbstractAccessor(ABC):
             )
         else:
             Logger().will(
-                f"run accessor for completed strategy process with hash {self.get_strategy_hash()}"
+                f"run accessor for '{len(self._completed_processes)}' completed strategy process with hash {self.get_strategy_hash()} "
             )
 
         for strategy_process in self._completed_processes:
