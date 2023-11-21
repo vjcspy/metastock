@@ -51,9 +51,11 @@ class TotalTradeValueFilter(FilterAbstract):
         total_trade_14_days = self._get_top_trade(14, top)
         total_trade_30_days = self._get_top_trade(30, top)
 
-        return find_common_elements(
+        symbols = find_common_elements(
             total_trade_7_days, total_trade_14_days, total_trade_30_days
         )
+
+        return [symbol for symbol in symbols if len(symbol) == 3]
 
     def _get_top_trade(self, days: int, top: int):
         sorted_data = sorted(

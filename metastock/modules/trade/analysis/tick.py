@@ -52,6 +52,9 @@ class StockTradingAnalysisTick:
         count_price = 0
         tS = 0
         tB = 0
+
+        lowest_price_picked = None
+
         for key in sorted_keys:
             tS += tick_data[key]["S"]
             tB += tick_data[key]["B"]
@@ -61,11 +64,13 @@ class StockTradingAnalysisTick:
                 and count_price > 1
                 and round(tB * 100 / (tS + tB), 2) > self.config.shark_collect_percent
             ):
-                return True, key
+                lowest_price_picked = int(key)
 
-            count_price += 1
-
-        return False, None
+        return (
+            (False, None)
+            if lowest_price_picked is None
+            else (True, lowest_price_picked)
+        )
 
     def _get_valid_tick_by_trade_value(self):
         meta = self.tick_data["meta"]
