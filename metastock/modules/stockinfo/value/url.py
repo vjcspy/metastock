@@ -30,7 +30,7 @@ class StockInfoUrl:
         return f"{base_url}/cor/info?symbol={symbol}"
 
     def get_price_history_url(self, symbol: str, from_date: str, to_date: str):
-        base_url = self._get_base_url()
+        base_url = StockInfoUrl.TICK_BASE_URL
 
         return f"{base_url}/stock-price/history?code={symbol}&from={from_date}&to={to_date}"
 
