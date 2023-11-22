@@ -1,9 +1,2 @@
-from metastock.modules.stockinfo.ulti.get_tick import get_tick
-from metastock.modules.trade.analysis.tick import StockTradingAnalysisTick
-
-tick_data = get_tick(symbol="VSC", date="2023-11-10")
-
-tick_analysis = StockTradingAnalysisTick(tick_data=tick_data)
-data = tick_analysis.get_data()
-
-print("a")
+a = [0, 1, 2, 3, 4, 5, 6]
+print(a[2:4])
