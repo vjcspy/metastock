@@ -127,7 +127,7 @@ class SimpleBuyAssessor(AbstractAccessor):
         for symbol, data in sorted_result.items():
             table.add_row(
                 f"{symbol}",
-                data["percent"],
+                f'{data["percent"]}',
                 f"{len(data['fail'])}",
                 f"len(data['pass'])",
             )
