@@ -113,8 +113,10 @@ class SimpleBuyAssessor(AbstractAccessor):
 
     def _summary(self):
         table = Table(title="Summary")
-        table.add_column("Key", justify="left", style="cyan", no_wrap=True)
-        table.add_column("Value", style="magenta")
+        table.add_column("Cổ Phiếu", justify="left", style="cyan", no_wrap=True)
+        table.add_column("Phần trăm", style="magenta")
+        table.add_column("Pass", style="magenta")
+        table.add_column("Fail", style="magenta")
 
         # Sắp xếp lại dictionary theo giá trị percent
         sorted_result = dict(
@@ -125,7 +127,9 @@ class SimpleBuyAssessor(AbstractAccessor):
         for symbol, data in sorted_result.items():
             table.add_row(
                 f"{symbol}",
-                f"percent: {data['percent']}, pass: {len(data['pass'])}, fail: {len(data['fail'])}",
+                data["percent"],
+                f"{len(data['fail'])}",
+                f"len(data['pass'])",
             )
 
         total_percent = 0
@@ -136,8 +140,5 @@ class SimpleBuyAssessor(AbstractAccessor):
 
         # Tính trung bình
         average_percent = round(total_percent / num_symbols, 2)
-        table.add_row(
-            "AVG percent",
-            f"{average_percent}",
-        )
+        table.add_row("AVG percent", f"{average_percent}", "", "")
         Logger().console().print(table, justify="center")

@@ -29,6 +29,10 @@ In local development, we can use pm2 with command
 pm2 start metastock/bin/start_consumer.py --log-date-format '' --interpreter=/home/wsl/.cache/pypoetry/virtualenvs/metastock-bq6tFdVW-py3.11/bin/python --instances 4 --max-memory-restart 1G -- --name=test_consumer
 ```
 
+```shell
+pm2 start metastock/bin/start_consumer.py --log-date-format '' --interpreter=/home/wsl/.cache/pypoetry/virtualenvs/metastock-bq6tFdVW-py3.11/bin/python --instances 4 --max-memory-restart 1G -- strategy_process
+```
+
 ## Production
 
 So far, the significant way is run by pm2. This is the best method that will not consume much time and resources compared to building a Docker file or Kubernetes.
