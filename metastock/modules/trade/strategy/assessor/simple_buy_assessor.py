@@ -128,8 +128,8 @@ class SimpleBuyAssessor(AbstractAccessor):
             table.add_row(
                 f"{symbol}",
                 f'{data["percent"]}',
+                f"{len(data['pass'])}",
                 f"{len(data['fail'])}",
-                f"len(data['pass'])",
             )
 
         total_percent = 0
