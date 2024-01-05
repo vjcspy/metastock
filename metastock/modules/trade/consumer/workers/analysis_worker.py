@@ -9,6 +9,7 @@ from metastock.modules.rabbitmq.job_worker import JobWorker
 from metastock.modules.rabbitmq.schema import job_consumer_body_schema
 from metastock.modules.stockinfo.ulti.get_price_history import get_price_history
 from metastock.modules.trade.analysis.cap import StockTradingAnalysisCap
+from metastock.modules.trade.analysis.foreign import StockTradingAnalysisForeign
 from metastock.modules.trade.analysis.hullma import StockTradingAnalysisHullma
 from metastock.modules.trade.analysis.total_trade_value import (
     StockTradingAnalysisTotalTradeValue,
@@ -57,6 +58,11 @@ class StockTradingAnalysisWorker(JobWorker):
         )
         cap_data = cap.get_data()
 
+        foreign_analysis = StockTradingAnalysisForeign(
+            symbol=self.get_symbol(), price_history=price_history
+        )
+        foreign_data = foreign_analysis.get_data()
+
         # save to downstream
         self._save_data_to_api(
             {
@@ -64,6 +70,7 @@ class StockTradingAnalysisWorker(JobWorker):
                 **total_trade_data,
                 **hullma_analysis_data,
                 **cap_data,
+                **foreign_data,
             }
         )
 
